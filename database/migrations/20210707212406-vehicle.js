@@ -26,6 +26,11 @@ module.exports = {
       allowNull: false,
       defaultValue: new Date()
     },
+    activated: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    },
     situation: {
       type: Sequelize.ENUM(['regular', 'unregular']),
       allowNull: false,

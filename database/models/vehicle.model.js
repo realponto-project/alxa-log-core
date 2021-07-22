@@ -31,6 +31,11 @@ const Vehicle = (sequelize) => {
       allowNull: false,
       defaultValue: 'regular',
     },
+    activated: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    }
   })
   
   Vehicle.associate = (models) => {
