@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node ./bin/www",
     "migrate": "sequelize db:migrate",
-    "migrate:undo": "sequelize db:migrate:undo:all",
-    "build": "sequelize db:migrate --url $DATABASE_URL"
+    "migrate:undo": "sequelize db:migrate:undo:all"
   },
   "dependencies": {
     "bcrypt": "5.0.0",
