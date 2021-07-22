@@ -1,40 +1,26 @@
 const Sequelize = require('sequelize')
-const Models = require('./models')
 
-const DB_USERNAME = 'postgres'
-const DB_HOST = 'localhost'
-const DB_NAME = 'jsl-postgres'
-const DB_PWD = 'postgres'
+const Models = require('./models')
+const sequelizeConfig = require('../config/database')
+
+const env = process.env.NODE_ENV || 'development'
+const config = sequelizeConfig[env]
 
 let sequelize = null
 const { DATABASE_URL } = process.env
 
-if(DATABASE_URL) {
-  sequelize = new Sequelize(DATABASE_URL, {
-      dialect: 'postgres',
-      logging: false,
-      pool: {
-        max: 5,
-        min: 0,
-        acquire: 30000,
-        idle: 10000
-      }
-  })
+if (config.use_env_variable) {
+  sequelize = new Sequelize(
+    `${process.env[config.use_env_variable]}?sslmode=require`,
+    config
+  )
 } else {
-  sequelize = new Sequelize({
-    username: DB_USERNAME,
-    password: DB_PWD,
-    database: DB_NAME,
-    host: DB_HOST,
-    dialect: 'postgres',
-    logging: false,
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    },
-  })
+  sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    config
+  )
 }
 
 const ModelInstances = Models.map(model => model(sequelize))
