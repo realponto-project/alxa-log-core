@@ -13,7 +13,7 @@ module.exports = {
           "createdAt": "2021-07-08T13:51:45.131Z",
           "updatedAt": "2021-07-08T13:51:45.131Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         },
         {
@@ -24,7 +24,7 @@ module.exports = {
           "createdAt": "2021-07-08T13:52:52.186Z",
           "updatedAt": "2021-07-08T13:52:52.186Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         },
         {
@@ -35,7 +35,7 @@ module.exports = {
           "createdAt": "2021-07-08T19:07:29.450Z",
           "updatedAt": "2021-07-08T19:07:29.450Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         },
         {
@@ -46,7 +46,7 @@ module.exports = {
           "createdAt": "2021-07-12T12:14:16.564Z",
           "updatedAt": "2021-07-12T12:14:16.564Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         },
         {
@@ -57,7 +57,7 @@ module.exports = {
           "createdAt": "2021-07-12T12:19:13.407Z",
           "updatedAt": "2021-07-12T12:19:13.407Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         },
         {
@@ -68,7 +68,7 @@ module.exports = {
           "createdAt": "2021-07-12T12:19:43.735Z",
           "updatedAt": "2021-07-12T12:19:43.735Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         },
         {
@@ -79,7 +79,7 @@ module.exports = {
           "createdAt": "2021-07-12T12:45:30.321Z",
           "updatedAt": "2021-07-12T12:45:30.321Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         },
         {
@@ -90,7 +90,7 @@ module.exports = {
           "createdAt": "2021-07-12T12:53:08.551Z",
           "updatedAt": "2021-07-12T12:53:08.551Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         },
         {
@@ -101,7 +101,7 @@ module.exports = {
           "createdAt": "2021-07-12T13:11:30.209Z",
           "updatedAt": "2021-07-12T13:11:30.209Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         },
         {
@@ -112,7 +112,7 @@ module.exports = {
           "createdAt": "2021-07-08T00:26:36.440Z",
           "updatedAt": "2021-07-12T18:08:45.980Z",
           "userType": "colaborator",
-          "activeted": true,
+          "activated": true,
           "companyId": "ce21ee4a-4f62-4f98-a879-ba95e8833723"
         }
       ],
