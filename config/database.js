@@ -51,8 +51,8 @@ module.exports = {
       }
     },
     define: {
-      paranoid: true,
-      timestamps: true
+      // paranoid: true,
+      // timestamps: true
     },
     timezone: process.env.TZ || 'America/Sao_Paulo'
   }
