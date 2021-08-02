@@ -68,14 +68,9 @@ const getSummaryOrders = async (req, res, next) => {
       where: { companyId },
       attributes: [
         'status',
-        [
-          Sequelize.fn('date_trunc', 'day', Sequelize.col('createdAt')),
-          'name'
-        ],
-        [Sequelize.fn('COUNT', Sequelize.col('createdAt')), 'count']
+        [Sequelize.fn('COUNT', Sequelize.col('status')), 'count']
       ],
       group: [
-        Sequelize.fn('date_trunc', 'day', Sequelize.col('createdAt')),
         'status'
       ],
     })

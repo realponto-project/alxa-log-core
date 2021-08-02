@@ -10,7 +10,8 @@ const OperationModel = database.model('operation')
 const VehicleModel = database.model('vehicle')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
-const { or, iLike, eq } = Op
+const { or, iLike, eq, and, gte, lte } = Op
+const moment = require('moment')
 
 const statusQuantityAllow = {
   'cancel': 1,
@@ -83,25 +84,64 @@ const getById = async (req, res, next) => {
   }
 }
 
+const buildQuery = (plate, status, services, priorities, dates) => {
+  let where = {}
+  if(plate) {
+    where = {
+      [or]: [
+        { plateCart: {
+          [iLike]: '%' + plate.replace(/\D/g, '') + '%'
+        } },
+        { plateHorse: {
+          [iLike]: '%' + plate.replace(/\D/g, '') + '%'
+        } },
+      ],
+    }
+  }
+
+  if (status.length > 0) {
+    where = {
+      ...where,
+      status: { [or]: status }
+    }
+  }
+
+  if (services.length > 0) {
+    where = {
+      ...where,
+      [and]: [{ service: { [or]: services } }]
+    }
+  }
+
+  if (priorities.length > 0) {
+    where = {
+      ...where,
+      [and]: [{ priority: { [or]: priorities } }]
+    }
+  }
+
+  if (dates.length > 0) {
+    where = {
+      ...where,
+      maintenanceDate: {
+        [gte]: moment(dates[0]).startOf('day').toISOString(),
+        [lte]: moment(dates[1]).endOf('day').toISOString()
+      }
+    }
+  }
+
+  return where
+}
+
 const getAll = async (req, res, next) => {
   const limit = pathOr(20, ['query', 'limit'], req)
   const offset = pathOr(0, ['query', 'offset'], req)
   const plate = pathOr(null, ['query', 'plate'], req)
-  const isPlate = plate ? {
-    [or]: [
-      { plateCart: {
-        [iLike]: '%' + plate.replace(/\D/g, '') + '%'
-      } },
-      { plateHorse: {
-        [iLike]: '%' + plate.replace(/\D/g, '') + '%'
-      } },
-    ],
-  } : null
-  let where = {}
-
-  if (isPlate) {
-    where = isPlate
-  }
+  const status =  pathOr([], ['query', 'status'], req)
+  const services =  pathOr([], ['query', 'services'], req)
+  const priorities =  pathOr([], ['query', 'priorities'], req)
+  const dates =  pathOr([], ['query', 'dates'], req)
+  const where = buildQuery(plate, status, services, priorities, dates)
 
   try {
     const count = await MaintenanceOrderModel.count({ where })
@@ -113,7 +153,7 @@ const getAll = async (req, res, next) => {
         offset: (offset * limit), 
         limit,
         order: [
-          ['maintenanceDate', 'ASC'],
+          ['maintenanceDate', 'DESC'],
         ]
       })
     res.json({...response, count })
@@ -144,10 +184,6 @@ const createEventToMaintenanceOrder =  async (req, res, next) => {
     }
     
     await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId, status }, { transaction })
-    const driverIsMatch = response && response.maintenanceOrderDrivers.find(driver => driver.id === driverId) 
-    if (status === 'check-out' && !driverIsMatch) {
-      await MaintenanceOrderDriverModel.create({ maintenanceOrderId, driverId }, { transaction })
-    }
 
     if (status === 'check-out') {
       payload = {
