@@ -5,6 +5,9 @@ router.post('/maintenance-orders', maintenanceOrderController.create)
 router.get('/maintenance-orders-company', maintenanceOrderController.getAllCompanyId)
 router.get('/maintenance-orders-operation', maintenanceOrderController.getAllOperationId)
 
+
+router.post('/associate-maintenance-orders', maintenanceOrderController.associateDriver)
+router.put('/associate-maintenance-orders', maintenanceOrderController.updateAssociateDriver)
 router.get('/maintenance-orders', maintenanceOrderController.getAll)
 router.put('/maintenance-orders/:id', maintenanceOrderController.update)
 router.get('/maintenance-orders/:id', maintenanceOrderController.getById)

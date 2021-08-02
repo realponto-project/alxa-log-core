@@ -12,6 +12,7 @@ const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { or, iLike, eq, and, gte, lte } = Op
 const moment = require('moment')
+const MaintenanceOrderDriver = require('../../database/models/maintenanceOrderDriver.model')
 
 const statusQuantityAllow = {
   'cancel': 1,
@@ -338,6 +339,36 @@ const getAllOperationId = async (req, res, next) => {
   }
 }
 
+const associateDriver = async (req, res, next) => {
+  const driverId = pathOr(null, ['body', 'driverId'], req)
+  const maintenanceOrderId = pathOr(null, ['body', 'maintenanceOrderId'], req)
+  const transaction = await database.transaction()
+
+  try{
+    const response = await MaintenanceOrderDriverModel.create({driverId, maintenanceOrderId}, { transaction })
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error })
+  }
+}
+
+const updateAssociateDriver = async (req, res, next) => {
+  const driverId = pathOr(null, ['body', 'driverId'], req)
+  const maintenanceOrderId = pathOr(null, ['body', 'maintenanceOrderId'], req)
+  const transaction = await database.transaction()
+  
+  try{
+    const response = await MaintenanceOrderDriverModel.findAll({where: {maintenanceOrderId}})
+    console.log(response)
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error })
+  }
+}
+
 module.exports = {
   create,
   update,
@@ -351,4 +382,6 @@ module.exports = {
   getByPlate,
   getAllCompanyId,
   getAllOperationId,
+  associateDriver,
+  updateAssociateDriver
 }
