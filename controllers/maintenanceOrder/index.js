@@ -10,7 +10,7 @@ const OperationModel = database.model('operation')
 const VehicleModel = database.model('vehicle')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
-const { or, iLike, eq, and } = Op
+const { or, iLike, eq, and, gte, lte } = Op
 const moment = require('moment')
 
 const statusQuantityAllow = {
