@@ -4,10 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "dev": "nodemon ./bin/www",
     "start": "node ./bin/www",
     "migrate": "sequelize db:migrate",
-    "migrate:undo": "sequelize db:migrate:undo:all",
-    "dev": "nodemon ./bin/www"
+    "migrate:undo": "sequelize db:migrate:undo:all"
   },
   "dependencies": {
     "bcrypt": "5.0.0",
