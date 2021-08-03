@@ -13,6 +13,7 @@ Para criar um track log  utilize o payload abaixo, como exemplo:
     "gpsLongitude": 8888999,
     "gpsDirection": 8888999,
     "gpsSpeed": 8888999,
-    "odometer": 8888999
+    "odometer": 8888999,
+    "vehicleId": "889982123"
   }
 ```

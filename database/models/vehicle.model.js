@@ -38,10 +38,8 @@ const Vehicle = (sequelize) => {
     },
     serialNumber: {
       type: Sequelize.STRING,
-      allowNull: true,
-      defaultValue: null,
-      unique: true,
-    }
+      allowNull: true
+    },
   })
   
   Vehicle.associate = (models) => {
