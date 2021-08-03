@@ -2,6 +2,7 @@ const { pathOr } = require('ramda')
 const database = require('../../database')
 const VehicleModel = database.model('vehicle')
 const VehicleTypeModel = database.model('vehicleType')
+const TrackModel = database.model('track')
 
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
@@ -33,7 +34,7 @@ const update = async (req, res, next) => {
 
 const getById = async (req, res, next) => {
   try {
-    const response = await VehicleModel.findByPk(req.params.id, { include: [VehicleTypeModel] })
+    const response = await VehicleModel.findByPk(req.params.id, { include: [VehicleTypeModel, TrackModel] })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error })
