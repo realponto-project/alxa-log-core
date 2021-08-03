@@ -38,7 +38,9 @@ const Vehicle = (sequelize) => {
     },
     serialNumber: {
       type: Sequelize.STRING,
-      allowNull: true
+      allowNull: true,
+      unique: true,
+      defaultValue: null,
     },
   })
   
