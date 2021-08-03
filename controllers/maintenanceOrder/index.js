@@ -12,7 +12,6 @@ const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { or, iLike, eq, and, gte, lte } = Op
 const moment = require('moment')
-const MaintenanceOrderDriver = require('../../database/models/maintenanceOrderDriver.model')
 
 const statusQuantityAllow = {
   'cancel': 1,

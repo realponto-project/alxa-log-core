@@ -2,6 +2,7 @@ const { pathOr } = require('ramda')
 const database = require('../../database')
 const VehicleModel = database.model('vehicle')
 const VehicleTypeModel = database.model('vehicleType')
+const TrackModel = database.model('track')
 
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
@@ -33,7 +34,7 @@ const update = async (req, res, next) => {
 
 const getById = async (req, res, next) => {
   try {
-    const response = await VehicleModel.findByPk(req.params.id, { include: [VehicleTypeModel] })
+    const response = await VehicleModel.findByPk(req.params.id, { include: [VehicleTypeModel, TrackModel] })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error })
@@ -59,8 +60,8 @@ const getAll = async (req, res, next) => {
 
   try {
     const count = await VehicleModel.count({ where })
-    const response = await VehicleModel.findAndCountAll({ where, include: [VehicleTypeModel], offset: (offset * limit), limit })
-    res.json({...response, count })
+    const rows = await VehicleModel.findAll({ where, include: [VehicleTypeModel], offset: (offset * limit), limit })
+    res.json({ rows, count })
   } catch (error) {
     res.status(400).json({ error })
   }

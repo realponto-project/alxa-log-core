@@ -18,6 +18,7 @@ const vehicleRoutes = require('./routes/vehicle')
 const driverRoutes = require('./routes/driver')
 const maintenanceOrderRoutes = require('./routes/maintenanceOrder')
 const maintenanceOrderEventRoutes = require('./routes/maintenanceOrderEvent')
+const trackRoutes = require('./routes/track')
 
 const baseUrl = '/api'
 
@@ -30,6 +31,7 @@ app.use(bodyParser.json({ type: 'application/json' }))
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use('/qrcode-detail/:id', getByIdMobile)
+app.use(trackRoutes)
 app.use('/auth', AuthenticationRoutes)
 app.use(baseUrl, AuthenticationController.checkToken)
 app.use(baseUrl, companyRoutes)

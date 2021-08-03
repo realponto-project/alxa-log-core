@@ -9,6 +9,7 @@ const MaintenanceOrderEvent = require('./maintenanceOrderEvent.model')
 const MaintenanceOrderDriver = require('./maintenanceOrderDriver.model')
 const DriverIncident = require('./driverIncident.model')
 const Supply = require('./supply.model')
+const Track = require('./track.model')
 
 module.exports = [
   Company,
@@ -22,4 +23,5 @@ module.exports = [
   Supply,
   MaintenanceOrder,
   DriverIncident,
+  Track,
 ]

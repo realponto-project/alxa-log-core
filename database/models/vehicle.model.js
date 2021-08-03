@@ -35,7 +35,13 @@ const Vehicle = (sequelize) => {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: true
-    }
+    },
+    serialNumber: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      unique: true,
+      defaultValue: null,
+    },
   })
   
   Vehicle.associate = (models) => {
@@ -56,6 +62,13 @@ const Vehicle = (sequelize) => {
         allowNull: false,
       }
     })
+
+    models.vehicle.hasMany(models.track, {
+      foreignKey: {
+        allowNull: false,
+      }
+    })
+
   }
 
   return Vehicle
