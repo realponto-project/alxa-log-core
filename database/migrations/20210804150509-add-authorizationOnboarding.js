@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('driver', 'authorizationOnboarding', {
+    await queryInterface.addColumn('drivers', 'authorizationOnboarding', {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false,
@@ -10,6 +10,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('driver', 'authorizationOnboarding')
+    await queryInterface.removeColumn('drivers', 'authorizationOnboarding')
   }
 };
