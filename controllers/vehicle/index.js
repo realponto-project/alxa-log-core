@@ -1,12 +1,14 @@
+const Sequelize = require('sequelize')
 const { pathOr } = require('ramda')
+
 const database = require('../../database')
+
 const VehicleModel = database.model('vehicle')
 const VehicleTypeModel = database.model('vehicleType')
 const TrackModel = database.model('track')
 
-const Sequelize = require('sequelize')
 const { Op } = Sequelize
-const { iLike } = Op
+const { iLike, not } = Op
 
 const create = async (req, res, next) => {
   const userId = pathOr(null, ['decoded', 'user', 'id'], req)
@@ -72,7 +74,7 @@ const getAllGeolocation =async (req, res, next) => {
 
   try {
     const rows = await VehicleModel.findAll({
-      where: { companyId },
+      where: { companyId, serialNumber: { [not]: null } },
       attributes: ['plate', 'id'],
       include: {
         model: TrackModel,
