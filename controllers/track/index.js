@@ -15,7 +15,7 @@ const createTrack = async (req, res, next) => {
 
     res.status(200).json({})
   } catch (error) {
-    res.status(400).json({ error: error.message })
+    res.status(400).json({ error: 'cannot create track!' })
   }
 }
 

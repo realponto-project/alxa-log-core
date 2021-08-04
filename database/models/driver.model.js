@@ -24,6 +24,11 @@ const Driver = (sequelize) => {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: true
+    },
+    authorizationOnboarding: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   })
   
