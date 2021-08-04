@@ -67,9 +67,30 @@ const getAll = async (req, res, next) => {
   }
 }
 
+const getAllGeolocation =async (req, res, next) => {
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+
+  try {
+    const rows = await VehicleModel.findAll({
+      where: { companyId },
+      attributes: ['plate', 'id'],
+      include: {
+        model: TrackModel,
+        limit: 1,
+        order: [['createdAt', 'DESC']]
+      },
+      })
+    res.json({ rows })
+  } catch (error) {
+    res.status(400).json({ error })
+  }
+}
+
+
 module.exports = {
   create,
   update,
   getById,
   getAll,
+  getAllGeolocation
 }
