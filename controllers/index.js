@@ -1,4 +1,5 @@
 const AuthenticationController = require('./authentication')
+const authorizationController = require('./authorization')
 const companyController = require('./company')
 const userController = require('./user')
 const operationController = require('./operation')
@@ -10,6 +11,7 @@ const trackController = require('./track')
 
 module.exports = {
   AuthenticationController,
+  authorizationController,
   companyController,
   userController,
   operationController,
