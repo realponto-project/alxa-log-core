@@ -386,6 +386,38 @@ const updateAssociateDriver = async (req, res, next) => {
   }
 }
 
+const updateCancel = async (req, res, next) => {
+  const maintenanceOrderId = pathOr(null, ['params', 'id'], req)
+  const userId = pathOr(null, ['decoded', 'user', 'id'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const status = pathOr(null, ['body', 'status'], req)
+  const transaction = await database.transaction()
+  let payload = pathOr({}, ['body'], req)
+
+  try { 
+    const response = await MaintenanceOrderModel.findByPk(maintenanceOrderId, { include: [MaintenanceOrderEventModel, SupplyModel, { model: MaintenanceOrderDriverModel, include:[DriverModel]}], transaction })
+    const eventsCreated = await MaintenanceOrderEventModel.count({ where: { status, maintenanceOrderId }})
+    
+    if (response.status === 'check-out' || response.status === 'cancel') {
+      throw new Error('Order finished, you cant set other state!')
+    }
+
+    if (eventsCreated === statusQuantityAllow[status] && response.status !== 'check-out') {
+      throw new Error(`Allow only ${statusQuantityAllow[status]} to the event ${status}`)
+    }
+    
+    await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId, status }, { transaction })
+    
+    await response.update(payload, { transaction })
+    await response.reload({ transaction })
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
   create,
   update,
@@ -400,5 +432,6 @@ module.exports = {
   getAllCompanyId,
   getAllOperationId,
   associateDriver,
-  updateAssociateDriver
+  updateAssociateDriver,
+  updateCancel
 }
