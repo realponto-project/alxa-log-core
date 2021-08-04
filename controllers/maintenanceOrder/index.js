@@ -34,6 +34,8 @@ const create = async (req, res, next) => {
 
   const transaction = await database.transaction()
   try {
+    const vehicle = await VehicleModel.findOne({ plate: plateCart }, { transaction })
+
     const findOrder = await MaintenanceOrderModel.findOne({ where: {
         plateCart,
         activated: true
@@ -44,7 +46,7 @@ const create = async (req, res, next) => {
       throw new Error ('Allow only one order for this plate!')
     }
 
-    const payload = await MaintenanceOrderModel.create({...req.body, userId }, { include:[MaintenanceOrderEventModel, CompanyModel], transaction })
+    const payload = await MaintenanceOrderModel.create({...req.body, fleet: vehicle ? vehicle.fleet : '', userId }, { include:[MaintenanceOrderEventModel, CompanyModel], transaction })
     const response = await MaintenanceOrderModel.findByPk(payload.id, { include:[MaintenanceOrderEventModel, CompanyModel], transaction })
     await MaintenanceOrderDriverModel.create({ maintenanceOrderId: payload.id, driverId: req.body.driverId }, { transaction })
     await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId: payload.id }, { transaction })
@@ -61,7 +63,9 @@ const create = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const findUser = await MaintenanceOrderModel.findByPk(req.params.id, { include: [CompanyModel, MaintenanceOrderEventModel]})
-    await findUser.update(req.body)
+    
+    const vehicle = await VehicleModel.findOne({ plate: req.body.plateCart })
+    await findUser.update({...req.body, fleet: vehicle ? vehicle.fleet : '' })
     const response = await findUser.reload({ include: [CompanyModel, MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel]}]})
     res.json(response)
   } catch (error) {
@@ -145,18 +149,23 @@ const getAll = async (req, res, next) => {
 
   try {
     const count = await MaintenanceOrderModel.count({ where })
-    const response = await MaintenanceOrderModel.findAndCountAll({ 
+    const rows = await MaintenanceOrderModel.findAll({ 
       where, 
       include: [
-        CompanyModel, 
-        MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel] }], 
+        CompanyModel,
+        MaintenanceOrderEventModel, 
+        { 
+          model: MaintenanceOrderDriverModel, 
+          include: [DriverModel]
+        }
+      ], 
         offset: (offset * limit), 
         limit,
         order: [
           ['maintenanceDate', 'DESC'],
         ]
       })
-    res.json({...response, count })
+    res.json({ rows, count })
   } catch (error) {
     res.status(400).json({ error })
   }
