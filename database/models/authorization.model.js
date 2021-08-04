@@ -1,24 +1,11 @@
 const Sequelize = require('sequelize')
 
 const Driver = (sequelize) => {
-  const Driver = sequelize.define('driver', {
+  const Driver = sequelize.define('authorization', {
     id: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
-    },
-    name: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-    phone: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-    driverLicense: {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: true,
     },
     activated: {
       type: Sequelize.BOOLEAN,
@@ -28,25 +15,19 @@ const Driver = (sequelize) => {
   })
   
   Driver.associate = (models) => {
-    models.driver.belongsTo(models.company, {
+    models.authorization.belongsTo(models.driver, {
       foreignKey: {
         allowNull: false,
       }
     })
 
-    models.driver.belongsTo(models.user, {
+    models.authorization.belongsTo(models.operation, {
       foreignKey: {
         allowNull: false,
       }
     })
 
-    models.driver.hasMany(models.driverIncident, {
-      foreignKey: {
-        allowNull: false,
-      }
-    })
-
-    models.driver.hasMany(models.authorization, {
+    models.authorization.belongsTo(models.vehicle, {
       foreignKey: {
         allowNull: false,
       }
