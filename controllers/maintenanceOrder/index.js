@@ -74,7 +74,7 @@ const getById = async (req, res, next) => {
   try {
     const response = await MaintenanceOrderModel.findByPk(req.params.id, { include: [
       CompanyModel, 
-      MaintenanceOrderEventModel, 
+      {model: MaintenanceOrderEventModel, include: [{ model: UserModel, attributes: ['id', 'name'] }]}, 
       SupplyModel,
       { model: MaintenanceOrderDriverModel, include: [DriverModel]},
       { model: OperationModel, include: [CompanyModel] }
@@ -150,7 +150,7 @@ const getAll = async (req, res, next) => {
       where, 
       include: [
         CompanyModel, 
-        MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel, UserModel] }], 
+        MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel] }], 
         offset: (offset * limit), 
         limit,
         order: [
