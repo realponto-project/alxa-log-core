@@ -16,7 +16,7 @@ const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
 
   try {
-    const response = await DriverModel.create({...req.body, userId, companyId }, { include: [] })
+    const response = await DriverModel.create({...req.body, userId, companyId, authorizationOnboarding: false }, { include: [] })
     res.json(response)
   } catch (error) {
     

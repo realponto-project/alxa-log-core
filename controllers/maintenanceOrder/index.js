@@ -396,10 +396,7 @@ const updateCancel = async (req, res, next) => {
   let payload = pathOr({}, ['body'], req)
 
   try { 
-    const response = await MaintenanceOrderModel.findByPk(maintenanceOrderId, { include: [
-      MaintenanceOrderEventModel, 
-      SupplyModel, { model: MaintenanceOrderDriverModel, include:[DriverModel]}
-    ], transaction })
+    const response = await MaintenanceOrderModel.findByPk(maintenanceOrderId, { include: [{ model: MaintenanceOrderDriverModel, include:[DriverModel]}], transaction })
     const eventsCreated = await MaintenanceOrderEventModel.count({ where: { status, maintenanceOrderId }})
     
     if (response.status === 'check-out' || response.status === 'cancel') {
