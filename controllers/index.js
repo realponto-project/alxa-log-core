@@ -6,6 +6,7 @@ const operationController = require('./operation')
 const vehicleTypeController = require('./vehicleType')
 const vehicleController = require('./vehicle')
 const driverController = require('./driver')
+const mobileDriverController = require('./mobileDriver')
 const maintenanceOrderController = require('./maintenanceOrder')
 const trackController = require('./track')
 
@@ -18,6 +19,7 @@ module.exports = {
   vehicleTypeController,
   vehicleController,
   driverController,
+  mobileDriverController,
   maintenanceOrderController,
   trackController
 }
