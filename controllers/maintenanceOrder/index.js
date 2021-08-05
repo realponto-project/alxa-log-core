@@ -8,6 +8,7 @@ const CompanyModel = database.model('company')
 const DriverModel = database.model('driver')
 const OperationModel = database.model('operation')
 const VehicleModel = database.model('vehicle')
+const UserModel = database.model('user')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { or, iLike, eq, and, gte, lte } = Op
@@ -149,7 +150,7 @@ const getAll = async (req, res, next) => {
       where, 
       include: [
         CompanyModel, 
-        MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel] }], 
+        MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel, UserModel] }], 
         offset: (offset * limit), 
         limit,
         order: [
@@ -395,7 +396,10 @@ const updateCancel = async (req, res, next) => {
   let payload = pathOr({}, ['body'], req)
 
   try { 
-    const response = await MaintenanceOrderModel.findByPk(maintenanceOrderId, { include: [MaintenanceOrderEventModel, SupplyModel, { model: MaintenanceOrderDriverModel, include:[DriverModel]}], transaction })
+    const response = await MaintenanceOrderModel.findByPk(maintenanceOrderId, { include: [
+      MaintenanceOrderEventModel, 
+      SupplyModel, { model: MaintenanceOrderDriverModel, include:[DriverModel]}
+    ], transaction })
     const eventsCreated = await MaintenanceOrderEventModel.count({ where: { status, maintenanceOrderId }})
     
     if (response.status === 'check-out' || response.status === 'cancel') {
@@ -408,7 +412,7 @@ const updateCancel = async (req, res, next) => {
     
     await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId, status }, { transaction })
     
-    await response.update(payload, { transaction })
+    await response.update({...payload, activated: false }, { transaction })
     await response.reload({ transaction })
     await transaction.commit()
     res.json(response)
