@@ -9,6 +9,7 @@ const DriverModel = database.model('driver')
 const OperationModel = database.model('operation')
 const VehicleModel = database.model('vehicle')
 const UserModel = database.model('user')
+const AuthorizationModel = database.model('authorization')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { or, iLike, eq, and, gte, lte } = Op
@@ -428,6 +429,69 @@ const updateCancel = async (req, res, next) => {
   }
 }
 
+const createByAuthorization = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const userId = pathOr(null, ['decoded', 'user', 'id'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const { body } = req
+
+  try{
+    const authorization = await AuthorizationModel.findByPk(
+      body.authorizationId,
+      { 
+        include: [DriverModel, VehicleModel],
+        transaction
+      }
+    )
+
+    if(!authorization) throw new Error('Authorization not found')
+
+    const findOrder = await MaintenanceOrderModel.findOne({ 
+      where: {
+        plateCart: authorization.vehicle.plate,
+        activated: true
+      },
+      transaction
+    })
+
+    if (findOrder) {
+      throw new Error ('Allow only one order for this plate!')
+    }
+
+    const payload = {
+      activated: true,
+      maintenanceDate: new Date(),
+      plateHorse: pathOr('', ['vehicle', 'plate'], authorization),
+      plateCart: pathOr('', ['vehicle', 'plate'], authorization),
+      fleet: pathOr('', ['vehicle', 'fleet'], authorization),
+      costCenter: '',
+      priority: 'low',
+      serviceDescription: '',
+      status: 'check-in',
+      companyId,
+      userId,
+      operationId: authorization.operationId,
+      service: 'preventive'
+    }
+    
+    const maintenanceOrderCreated = await MaintenanceOrderModel.create(payload, { transaction })
+
+    await MaintenanceOrderDriverModel.create({ maintenanceOrderId: maintenanceOrderCreated.id, driverId: authorization.driverId }, { transaction })
+
+    const response = await MaintenanceOrderModel.findByPk(maintenanceOrderCreated.id, {
+      include: [DriverModel],
+      transaction
+    }) 
+
+    await transaction.commit()
+    res.json(response)
+  }catch(error) {
+    console.log(error)
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
   create,
   update,
@@ -443,5 +507,6 @@ module.exports = {
   getAllOperationId,
   associateDriver,
   updateAssociateDriver,
-  updateCancel
+  updateCancel,
+  createByAuthorization
 }
