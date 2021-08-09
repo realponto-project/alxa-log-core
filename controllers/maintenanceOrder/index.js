@@ -178,11 +178,10 @@ const createEventToMaintenanceOrder =  async (req, res, next) => {
   const userId = pathOr(null, ['decoded', 'user', 'id'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const status = pathOr(null, ['body', 'status'], req)
-  const driverId = pathOr(null, ['body', 'driverId'], req)
   const transaction = await database.transaction()
   let payload = pathOr({}, ['body'], req)
 
-  try { 
+  try {
     const response = await MaintenanceOrderModel.findByPk(maintenanceOrderId, { include: [MaintenanceOrderEventModel, SupplyModel, { model: MaintenanceOrderDriverModel, include:[DriverModel]}], transaction })
     const eventsCreated = await MaintenanceOrderEventModel.count({ where: { status, maintenanceOrderId }})
     
@@ -197,6 +196,12 @@ const createEventToMaintenanceOrder =  async (req, res, next) => {
     await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId, status }, { transaction })
 
     if (status === 'check-out') {
+      const drivers = await MaintenanceOrderDriverModel.findAll({ where: { maintenanceOrderId }, transaction, raw: true})
+
+      if(drivers.length !== 2){
+        throw new Error(`Don't have a second driver`)
+      }
+
       payload = {
         ...payload,
         activated: false,
