@@ -1,4 +1,4 @@
-const { pathOr } = require('ramda')
+const { pathOr, pipe } = require('ramda')
 const database = require('../../database')
 const MaintenanceOrderModel = database.model('maintenanceOrder')
 const MaintenanceOrderEventModel = database.model('maintenanceOrderEvent')
@@ -90,16 +90,25 @@ const getById = async (req, res, next) => {
   }
 }
 
-const buildQuery = (plate, status, services, priorities, dates) => {
+const buildQuery = ({ plate, status, services, priorities, dates, companyId }) => {
   let where = {}
+
+  if(companyId) {
+    where = { 
+      ...where,
+      companyId
+    }
+  }
+    
   if(plate) {
     where = {
+      ...where,
       [or]: [
         { plateCart: {
-          [iLike]: '%' + plate.replace(/\D/g, '') + '%'
+          [iLike]: '%' + plate + '%'
         } },
         { plateHorse: {
-          [iLike]: '%' + plate.replace(/\D/g, '') + '%'
+          [iLike]: '%' + plate + '%'
         } },
       ],
     }
@@ -147,7 +156,7 @@ const getAll = async (req, res, next) => {
   const services =  pathOr([], ['query', 'services'], req)
   const priorities =  pathOr([], ['query', 'priorities'], req)
   const dates =  pathOr([], ['query', 'dates'], req)
-  const where = buildQuery(plate, status, services, priorities, dates)
+  const where = buildQuery({ plate, status, services, priorities, dates })
 
   try {
     const count = await MaintenanceOrderModel.count({ where })
@@ -322,14 +331,30 @@ const getByPlate = async (req, res, next) => {
 }
 
 const getAllCompanyId = async (req, res, next) => {
-  const limit = pathOr(20, ['query', 'limit'], req)
-  const offset = pathOr(0, ['query', 'offset'], req)
+  const limit = pipe(pathOr('20', ['query', 'limit']), Number)(req)
+  const offset = pipe(pathOr('0', ['query', 'offset']), Number)(req)
   const companyId = pathOr(null, ['query', 'companyId'], req)
+  const plate = pathOr(null, ['query', 'plate'], req)
+  const status =  pathOr([], ['query', 'status'], req)
+  const services =  pathOr([], ['query', 'services'], req)
+  const priorities =  pathOr([], ['query', 'priorities'], req)
+  const dates =  pathOr([], ['query', 'dates'], req)
+
+  const where = buildQuery({ plate, status, services, priorities, dates, companyId })
 
   try {
-    const count = await MaintenanceOrderModel.count({ where: { companyId } })
-    const response = await MaintenanceOrderModel.findAndCountAll({ where: { companyId }, include: [CompanyModel, MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel] }], offset, limit })
-    res.json({...response, count })
+    const count = await MaintenanceOrderModel.count({ where })
+    const rows = await MaintenanceOrderModel.findAll({
+      where,
+      include: [
+        CompanyModel,
+        MaintenanceOrderEventModel,
+        { model: MaintenanceOrderDriverModel, include: [DriverModel] }
+      ],
+      offset,
+      limit
+    })
+    res.json({ rows, count })
   } catch (error) {
     res.status(400).json({ error })
   }
