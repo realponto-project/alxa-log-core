@@ -505,7 +505,7 @@ const createByAuthorization = async (req, res, next) => {
     }
     
     const maintenanceOrderCreated = await MaintenanceOrderModel.create(payload, { transaction })
-
+    await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId: maintenanceOrderCreated.id }, { transaction })
     await MaintenanceOrderDriverModel.create({ maintenanceOrderId: maintenanceOrderCreated.id, driverId: authorization.driverId }, { transaction })
 
     const response = await MaintenanceOrderModel.findByPk(maintenanceOrderCreated.id, {
