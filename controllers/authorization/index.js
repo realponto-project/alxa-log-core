@@ -18,6 +18,17 @@ const create = async (req, res, next) => {
   }
 }
 
+const update = async (req, res, next) => {
+  try {
+    const findAuthorization = await AuthorizationModel.findByPk(req.params.id, { include: [] })
+    await findAuthorization.update(req.body)
+    const response = await findAuthorization.reload()
+    res.json(response)
+  } catch (error) {
+    res.status(400).json({ error })
+  }
+}
+
 const getAll = async (req, res, next) => {
   try{
     const response = await AuthorizationModel.findAndCountAll()
@@ -76,5 +87,6 @@ module.exports = {
   create,
   getAll,
   getById,
-  getAllByDriverId
+  getAllByDriverId,
+  update
 };

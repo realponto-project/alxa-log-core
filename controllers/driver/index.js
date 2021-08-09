@@ -2,6 +2,7 @@ const { pathOr } = require('ramda')
 const database = require('../../database')
 const DriverModel = database.model('driver')
 const DriverIncidentModel = database.model('driverIncident')
+const AuthorizationModel = database.model('authorization')
 const CompanyModel = database.model('company')
 const UserModel = database.model('user')
 const OperationModel = database.model('operation')
@@ -16,10 +17,10 @@ const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
 
   try {
-    const response = await DriverModel.create({...req.body, userId, companyId, authorizationOnboarding: false }, { include: [] })
+    const response = await DriverModel.create({ ...req.body, userId, companyId, authorizationOnboarding: false }, { include: [] })
     res.json(response)
   } catch (error) {
-    
+
     res.status(400).json({ error: error.message })
   }
 }
@@ -37,15 +38,30 @@ const update = async (req, res, next) => {
 
 const getById = async (req, res, next) => {
   try {
-    const response = await DriverModel.findByPk(req.params.id, { include: [{
-      model: DriverIncidentModel,
+    const response = await DriverModel.findByPk(req.params.id, {
       include: [
-        { model: OperationModel, include: [CompanyModel] }, 
-        CompanyModel,
-        UserModel,
-        VehicleModel
+        {
+          model: AuthorizationModel,
+          include: [
+            {
+              model: OperationModel,
+            },
+            VehicleModel,
+            DriverModel,
+          ]
+        },
+        {
+          model: DriverIncidentModel,
+          include: [
+            { model: OperationModel, include: [CompanyModel] },
+            CompanyModel,
+            UserModel,
+            VehicleModel,
+          ]
+        }
       ]
-    }] })
+    })
+    
     res.json(response)
   } catch (error) {
     res.status(400).json({ error: error.message })
@@ -60,7 +76,7 @@ const getAll = async (req, res, next) => {
   const isDriverLicense = driverLicense ? { driverLicense: { [iLike]: '%' + driverLicense + '%' } } : null
   const isName = name ? { name: { [iLike]: '%' + name + '%' } } : null
   let where = {}
-  
+
   if (isDriverLicense) {
     where = isDriverLicense
   }
@@ -82,10 +98,10 @@ const createIncident = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
 
   try {
-    const response = await DriverIncidentModel.create({...req.body, userId, companyId }, { include: [OperationModel, CompanyModel, UserModel, VehicleModel, DriverModel] })
+    const response = await DriverIncidentModel.create({ ...req.body, userId, companyId }, { include: [OperationModel, CompanyModel, UserModel, VehicleModel, DriverModel] })
     res.json(response)
   } catch (error) {
-    
+
     res.status(400).json({ error: error.message })
   }
 }
@@ -94,7 +110,7 @@ const getIncidentsSummary = async (req, res, next) => {
   const driverId = pathOr(null, ['params', 'id'], req)
 
   try {
-    const response = await DriverIncidentModel.findAll({ 
+    const response = await DriverIncidentModel.findAll({
       where: { driverId },
       attributes: [
         'incidentType',
