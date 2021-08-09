@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 
-const Driver = (sequelize) => {
-  const Driver = sequelize.define('authorization', {
+const Authorization = (sequelize) => {
+  const Authorization = sequelize.define('authorization', {
     id: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
@@ -14,27 +14,30 @@ const Driver = (sequelize) => {
     }
   })
   
-  Driver.associate = (models) => {
+  Authorization.associate = (models) => {
     models.authorization.belongsTo(models.driver, {
       foreignKey: {
+        unique: 'uniqueKeyAuthorization',
         allowNull: false,
       }
     })
 
     models.authorization.belongsTo(models.operation, {
       foreignKey: {
+        unique: 'uniqueKeyAuthorization',
         allowNull: false,
       }
     })
 
     models.authorization.belongsTo(models.vehicle, {
       foreignKey: {
+        unique: 'uniqueKeyAuthorization',
         allowNull: false,
       }
     })
   }
 
-  return Driver
+  return Authorization
 }
 
-module.exports = Driver
+module.exports = Authorization

@@ -14,6 +14,7 @@ module.exports = {
     },
     driverId: {
       type: Sequelize.UUID,
+      unique: 'uniqueKeyAuthorization',
       references: {
         model: 'drivers',
         key: 'id',
@@ -23,6 +24,7 @@ module.exports = {
     },
     operationId: {
       type: Sequelize.UUID,
+      unique: 'uniqueKeyAuthorization',
       references: {
         model: 'operations',
         key: 'id',
@@ -32,6 +34,7 @@ module.exports = {
     },
     vehicleId: {
       type: Sequelize.UUID,
+      unique: 'uniqueKeyAuthorization',
       references: {
         model: 'vehicles',
         key: 'id',
@@ -47,6 +50,12 @@ module.exports = {
       type: Sequelize.DATE,
       allowNull: false,
     },
+  }, {
+    uniqueKeys: {
+      Items_unique: {
+        fields: ['driverId', 'operationId', 'vehicleId']
+      }
+    }
   }),
   down: (queryInterface) => queryInterface.dropTable('authorizations')
 };

@@ -105,6 +105,10 @@ const MaintenanceOrder = (sequelize) => {
         allowNull: false,
       }
     })
+
+    models.maintenanceOrder.belongsToMany(models.driver, {
+      through: 'maintenanceOrderDriver'
+    })
   }
 
   return MaintenanceOrder

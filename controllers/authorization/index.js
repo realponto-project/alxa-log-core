@@ -28,6 +28,30 @@ const getAll = async (req, res, next) => {
   }
 }
 
+const getAllByDriverId = async (req, res, next) => {
+  const { driverId, plate } = req.query
+
+  try{
+    if(!driverId) throw new Error('driverId is required')
+    if(!plate) throw new Error('plate is required')
+
+    const response = await AuthorizationModel.findAll({
+      where: { driverId },
+      include: [
+        OperationModel,
+        {
+          model: VehicleModel, 
+          where: { plate }
+        }
+      ]
+    })
+
+    res.json(response)
+  }catch(error){
+    res.status(404).json({ error })
+  }
+}
+
 const getById = async (req, res, next) => {
   try{
     const response = await AuthorizationModel.findByPk(
@@ -51,5 +75,6 @@ const getById = async (req, res, next) => {
 module.exports = {
   create,
   getAll,
-  getById
+  getById,
+  getAllByDriverId
 };
