@@ -350,8 +350,8 @@ const getAllCompanyId = async (req, res, next) => {
         CompanyModel,
         MaintenanceOrderEventModel,
         { model: MaintenanceOrderDriverModel, include: [DriverModel] }
-      ],
-      offset,
+      ],  
+      offset: (offset * limit), 
       limit
     })
     res.json({ rows, count })
