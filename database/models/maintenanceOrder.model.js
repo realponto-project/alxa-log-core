@@ -22,6 +22,10 @@ const MaintenanceOrder = (sequelize) => {
       allowNull: true,
       defaultValue: null,
     },
+    fleet: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
     maintenanceDate: {
       type: Sequelize.DATE,
       allowNull: false,
@@ -100,6 +104,10 @@ const MaintenanceOrder = (sequelize) => {
       foreignKey: {
         allowNull: false,
       }
+    })
+
+    models.maintenanceOrder.belongsToMany(models.driver, {
+      through: 'maintenanceOrderDriver'
     })
   }
 

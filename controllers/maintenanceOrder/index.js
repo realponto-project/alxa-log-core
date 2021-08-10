@@ -1,4 +1,4 @@
-const { pathOr } = require('ramda')
+const { pathOr, pipe } = require('ramda')
 const database = require('../../database')
 const MaintenanceOrderModel = database.model('maintenanceOrder')
 const MaintenanceOrderEventModel = database.model('maintenanceOrderEvent')
@@ -8,6 +8,8 @@ const CompanyModel = database.model('company')
 const DriverModel = database.model('driver')
 const OperationModel = database.model('operation')
 const VehicleModel = database.model('vehicle')
+const UserModel = database.model('user')
+const AuthorizationModel = database.model('authorization')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { or, iLike, eq, and, gte, lte } = Op
@@ -34,6 +36,8 @@ const create = async (req, res, next) => {
 
   const transaction = await database.transaction()
   try {
+    const vehicle = await VehicleModel.findOne({ plate: plateCart }, { transaction })
+
     const findOrder = await MaintenanceOrderModel.findOne({ where: {
         plateCart,
         activated: true
@@ -44,7 +48,7 @@ const create = async (req, res, next) => {
       throw new Error ('Allow only one order for this plate!')
     }
 
-    const payload = await MaintenanceOrderModel.create({...req.body, userId }, { include:[MaintenanceOrderEventModel, CompanyModel], transaction })
+    const payload = await MaintenanceOrderModel.create({...req.body, fleet: vehicle ? vehicle.fleet : '', userId }, { include:[MaintenanceOrderEventModel, CompanyModel], transaction })
     const response = await MaintenanceOrderModel.findByPk(payload.id, { include:[MaintenanceOrderEventModel, CompanyModel], transaction })
     await MaintenanceOrderDriverModel.create({ maintenanceOrderId: payload.id, driverId: req.body.driverId }, { transaction })
     await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId: payload.id }, { transaction })
@@ -61,7 +65,9 @@ const create = async (req, res, next) => {
 const update = async (req, res, next) => {
   try {
     const findUser = await MaintenanceOrderModel.findByPk(req.params.id, { include: [CompanyModel, MaintenanceOrderEventModel]})
-    await findUser.update(req.body)
+    
+    const vehicle = await VehicleModel.findOne({ plate: req.body.plateCart })
+    await findUser.update({...req.body, fleet: vehicle ? vehicle.fleet : '' })
     const response = await findUser.reload({ include: [CompanyModel, MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel]}]})
     res.json(response)
   } catch (error) {
@@ -73,7 +79,7 @@ const getById = async (req, res, next) => {
   try {
     const response = await MaintenanceOrderModel.findByPk(req.params.id, { include: [
       CompanyModel, 
-      MaintenanceOrderEventModel, 
+      {model: MaintenanceOrderEventModel, include: [{ model: UserModel, attributes: ['id', 'name'] }]}, 
       SupplyModel,
       { model: MaintenanceOrderDriverModel, include: [DriverModel]},
       { model: OperationModel, include: [CompanyModel] }
@@ -84,16 +90,25 @@ const getById = async (req, res, next) => {
   }
 }
 
-const buildQuery = (plate, status, services, priorities, dates) => {
+const buildQuery = ({ plate, status, services, priorities, dates, companyId }) => {
   let where = {}
+
+  if(companyId) {
+    where = { 
+      ...where,
+      companyId
+    }
+  }
+    
   if(plate) {
     where = {
+      ...where,
       [or]: [
         { plateCart: {
-          [iLike]: '%' + plate.replace(/\D/g, '') + '%'
+          [iLike]: '%' + plate + '%'
         } },
         { plateHorse: {
-          [iLike]: '%' + plate.replace(/\D/g, '') + '%'
+          [iLike]: '%' + plate + '%'
         } },
       ],
     }
@@ -141,22 +156,27 @@ const getAll = async (req, res, next) => {
   const services =  pathOr([], ['query', 'services'], req)
   const priorities =  pathOr([], ['query', 'priorities'], req)
   const dates =  pathOr([], ['query', 'dates'], req)
-  const where = buildQuery(plate, status, services, priorities, dates)
+  const where = buildQuery({ plate, status, services, priorities, dates })
 
   try {
     const count = await MaintenanceOrderModel.count({ where })
-    const response = await MaintenanceOrderModel.findAndCountAll({ 
+    const rows = await MaintenanceOrderModel.findAll({ 
       where, 
       include: [
-        CompanyModel, 
-        MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel] }], 
+        CompanyModel,
+        MaintenanceOrderEventModel, 
+        { 
+          model: MaintenanceOrderDriverModel, 
+          include: [DriverModel]
+        }
+      ], 
         offset: (offset * limit), 
         limit,
         order: [
           ['maintenanceDate', 'DESC'],
         ]
       })
-    res.json({...response, count })
+    res.json({ rows, count })
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -167,11 +187,10 @@ const createEventToMaintenanceOrder =  async (req, res, next) => {
   const userId = pathOr(null, ['decoded', 'user', 'id'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const status = pathOr(null, ['body', 'status'], req)
-  const driverId = pathOr(null, ['body', 'driverId'], req)
   const transaction = await database.transaction()
   let payload = pathOr({}, ['body'], req)
 
-  try { 
+  try {
     const response = await MaintenanceOrderModel.findByPk(maintenanceOrderId, { include: [MaintenanceOrderEventModel, SupplyModel, { model: MaintenanceOrderDriverModel, include:[DriverModel]}], transaction })
     const eventsCreated = await MaintenanceOrderEventModel.count({ where: { status, maintenanceOrderId }})
     
@@ -186,6 +205,12 @@ const createEventToMaintenanceOrder =  async (req, res, next) => {
     await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId, status }, { transaction })
 
     if (status === 'check-out') {
+      const drivers = await MaintenanceOrderDriverModel.findAll({ where: { maintenanceOrderId }, transaction, raw: true})
+
+      if(drivers.length !== 2){
+        throw new Error(`Don't have a second driver`)
+      }
+
       payload = {
         ...payload,
         activated: false,
@@ -311,14 +336,30 @@ const getByPlate = async (req, res, next) => {
 }
 
 const getAllCompanyId = async (req, res, next) => {
-  const limit = pathOr(20, ['query', 'limit'], req)
-  const offset = pathOr(0, ['query', 'offset'], req)
+  const limit = pipe(pathOr('20', ['query', 'limit']), Number)(req)
+  const offset = pipe(pathOr('0', ['query', 'offset']), Number)(req)
   const companyId = pathOr(null, ['query', 'companyId'], req)
+  const plate = pathOr(null, ['query', 'plate'], req)
+  const status =  pathOr([], ['query', 'status'], req)
+  const services =  pathOr([], ['query', 'services'], req)
+  const priorities =  pathOr([], ['query', 'priorities'], req)
+  const dates =  pathOr([], ['query', 'dates'], req)
+
+  const where = buildQuery({ plate, status, services, priorities, dates, companyId })
 
   try {
-    const count = await MaintenanceOrderModel.count({ where: { companyId } })
-    const response = await MaintenanceOrderModel.findAndCountAll({ where: { companyId }, include: [CompanyModel, MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel] }], offset, limit })
-    res.json({...response, count })
+    const count = await MaintenanceOrderModel.count({ where })
+    const rows = await MaintenanceOrderModel.findAll({
+      where,
+      include: [
+        CompanyModel,
+        MaintenanceOrderEventModel,
+        { model: MaintenanceOrderDriverModel, include: [DriverModel] }
+      ],  
+      offset: (offset * limit), 
+      limit
+    })
+    res.json({ rows, count })
   } catch (error) {
     res.status(400).json({ error })
   }
@@ -386,6 +427,101 @@ const updateAssociateDriver = async (req, res, next) => {
   }
 }
 
+const updateCancel = async (req, res, next) => {
+  const maintenanceOrderId = pathOr(null, ['params', 'id'], req)
+  const userId = pathOr(null, ['decoded', 'user', 'id'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const status = pathOr(null, ['body', 'status'], req)
+  const transaction = await database.transaction()
+  let payload = pathOr({}, ['body'], req)
+
+  try { 
+    const response = await MaintenanceOrderModel.findByPk(maintenanceOrderId, { include: [{ model: MaintenanceOrderDriverModel, include:[DriverModel]}], transaction })
+    const eventsCreated = await MaintenanceOrderEventModel.count({ where: { status, maintenanceOrderId }})
+    
+    if (response.status === 'check-out' || response.status === 'cancel') {
+      throw new Error('Order finished, you cant set other state!')
+    }
+
+    if (eventsCreated === statusQuantityAllow[status] && response.status !== 'check-out') {
+      throw new Error(`Allow only ${statusQuantityAllow[status]} to the event ${status}`)
+    }
+    
+    await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId, status }, { transaction })
+    
+    await response.update({...payload, activated: false }, { transaction })
+    await response.reload({ transaction })
+    await transaction.commit()
+    res.json(response)
+  } catch (error) {
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
+const createByAuthorization = async (req, res, next) => {
+  const transaction = await database.transaction()
+  const userId = pathOr(null, ['decoded', 'user', 'id'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const { body } = req
+
+  try{
+    const authorization = await AuthorizationModel.findByPk(
+      body.authorizationId,
+      { 
+        include: [DriverModel, VehicleModel],
+        transaction
+      }
+    )
+
+    if(!authorization) throw new Error('Authorization not found')
+
+    const findOrder = await MaintenanceOrderModel.findOne({ 
+      where: {
+        plateCart: authorization.vehicle.plate,
+        activated: true
+      },
+      transaction
+    })
+
+    if (findOrder) {
+      throw new Error ('Allow only one order for this plate!')
+    }
+
+    const payload = {
+      activated: true,
+      maintenanceDate: new Date(),
+      plateHorse: pathOr('', ['vehicle', 'plate'], authorization),
+      plateCart: pathOr('', ['vehicle', 'plate'], authorization),
+      fleet: pathOr('', ['vehicle', 'fleet'], authorization),
+      costCenter: '',
+      priority: 'low',
+      serviceDescription: '',
+      status: 'check-in',
+      companyId,
+      userId,
+      operationId: authorization.operationId,
+      service: 'preventive'
+    }
+    
+    const maintenanceOrderCreated = await MaintenanceOrderModel.create(payload, { transaction })
+    await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId: maintenanceOrderCreated.id }, { transaction })
+    await MaintenanceOrderDriverModel.create({ maintenanceOrderId: maintenanceOrderCreated.id, driverId: authorization.driverId }, { transaction })
+
+    const response = await MaintenanceOrderModel.findByPk(maintenanceOrderCreated.id, {
+      include: [DriverModel],
+      transaction
+    }) 
+
+    await transaction.commit()
+    res.json(response)
+  }catch(error) {
+    console.log(error)
+    await transaction.rollback()
+    res.status(400).json({ error: error.message })
+  }
+}
+
 module.exports = {
   create,
   update,
@@ -400,5 +536,7 @@ module.exports = {
   getAllCompanyId,
   getAllOperationId,
   associateDriver,
-  updateAssociateDriver
+  updateAssociateDriver,
+  updateCancel,
+  createByAuthorization
 }
