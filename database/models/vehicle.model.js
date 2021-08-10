@@ -45,7 +45,7 @@ const Vehicle = (sequelize) => {
     minKm: {
       type: Sequelize.INTEGER,
       allowNull: true,
-      defaultValue: 444444,
+      defaultValue: 30000000
     },
   })
   
