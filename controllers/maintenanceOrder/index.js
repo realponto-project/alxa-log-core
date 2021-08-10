@@ -91,13 +91,20 @@ const getById = async (req, res, next) => {
   }
 }
 
-const buildQuery = ({ plate, status, services, priorities, dates, companyId }) => {
+const buildQuery = ({ plate, status, services, priorities, dates, companyId, operationId }) => {
   let where = {}
 
   if(companyId) {
     where = { 
       ...where,
       companyId
+    }
+  }
+
+  if(operationId) {
+    where = { 
+      ...where,
+      operationId
     }
   }
     
@@ -371,10 +378,27 @@ const getAllOperationId = async (req, res, next) => {
   const offset = pathOr(0, ['query', 'offset'], req)
   const operationId = pathOr(null, ['query', 'operationId'], req)
 
+  const plate = pathOr(null, ['query', 'plate'], req)
+  const status =  pathOr([], ['query', 'status'], req)
+  const services =  pathOr([], ['query', 'services'], req)
+  const priorities =  pathOr([], ['query', 'priorities'], req)
+  const dates =  pathOr([], ['query', 'dates'], req)
+
+  const where = buildQuery({ plate, status, services, priorities, dates, operationId })
+
   try {
-    const count = await MaintenanceOrderModel.count({ where: { operationId } })
-    const response = await MaintenanceOrderModel.findAndCountAll({ where: { operationId }, include: [CompanyModel, MaintenanceOrderEventModel, { model: MaintenanceOrderDriverModel, include: [DriverModel] }], offset, limit })
-    res.json({...response, count })
+    const count = await MaintenanceOrderModel.count({ where })
+    const rows = await MaintenanceOrderModel.findAll({
+      where,
+      include: [
+        CompanyModel,
+        MaintenanceOrderEventModel,
+        { model: MaintenanceOrderDriverModel, include: [DriverModel] }
+      ],
+      offset,
+      limit
+    })
+    res.json({ rows, count })
   } catch (error) {
     res.status(400).json({ error })
   }
