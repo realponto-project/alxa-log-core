@@ -9,15 +9,13 @@ const createTrack = async (req, res, next) => {
   try {
     const findVehicle = await VehicleModel.findOne({ where: { serialNumber }})
   
-    if(payload.gpsLatitude && payload.gpsLongitude === 0){
-      throw new Error('Longitude and Latitude cannot be zero')
+    if(payload.gpsLatitude && payload.gpsLongitude !== 0){
+      if (findVehicle && findVehicle.id) {
+        await TrackModel.create({...payload, vehicleId: findVehicle.id })
+      }
+      res.status(200).json({})
     }
     
-    if (findVehicle && findVehicle.id) {
-      await TrackModel.create({...payload, vehicleId: findVehicle.id })
-    }
-
-    res.status(200).json({})
   } catch (error) {
     res.status(400).json({ error: 'cannot create track!' })
   }
