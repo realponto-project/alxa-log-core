@@ -27,6 +27,7 @@ const statusQuantityAllow = {
   'wash': 1,
   'supply': 2,
   'check-out': 1,
+  'external_service': 1,
 }
 
 const create = async (req, res, next) => {
