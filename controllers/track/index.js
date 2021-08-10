@@ -8,6 +8,10 @@ const createTrack = async (req, res, next) => {
   const payload = pathOr({}, ['body'], req)
   try {
     const findVehicle = await VehicleModel.findOne({ where: { serialNumber }})
+  
+    if(payload.gpsLatitude && payload.gpsLongitude === 0){
+      throw new Error('Longitude and Latitude cannot be zero')
+    }
     
     if (findVehicle && findVehicle.id) {
       await TrackModel.create({...payload, vehicleId: findVehicle.id })
