@@ -8,11 +8,13 @@ const createTrack = async (req, res, next) => {
   const payload = pathOr({}, ['body'], req)
   try {
     const findVehicle = await VehicleModel.findOne({ where: { serialNumber }})
-    
-    if (findVehicle && findVehicle.id) {
-      await TrackModel.create({...payload, vehicleId: findVehicle.id })
+  
+    if(payload.gpsLatitude && payload.gpsLongitude){
+      if (findVehicle && findVehicle.id) {
+        await TrackModel.create({...payload, vehicleId: findVehicle.id })
+      }
     }
-
+    
     res.status(200).json({})
   } catch (error) {
     res.status(400).json({ error: 'cannot create track!' })
