@@ -3,7 +3,8 @@ const { driverController } = require('../../controllers')
 
 router.post('/drivers', driverController.create)
 router.post('/drivers-incidents', driverController.createIncident)
-router.get('/drivers-incidents/:id', driverController.getIncidentsSummary)
+router.get('/drivers-incidents-summary/:id', driverController.getIncidentsSummary)
+router.get('/drivers-incidents/:id', driverController.getAllIncidentByDriverId)
 
 router.get('/drivers', driverController.getAll)
 router.put('/drivers/:id', driverController.update)
