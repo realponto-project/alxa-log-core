@@ -5,7 +5,7 @@ module.exports = {
     await queryInterface.addColumn('vehicles', 'minKm', {
       type: Sequelize.INTEGER,
       allowNull: true,
-      defaultValue: 30000000
+      defaultValue: 30000
     })
   },
 
