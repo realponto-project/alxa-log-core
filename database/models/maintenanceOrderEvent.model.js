@@ -22,6 +22,7 @@ const MaintenanceOrderEvent = (sequelize) => {
         'wash',
         'supply',
         'check-out',
+        'external_service',
       ]),
       allowNull: false,
       defaultValue: 'solicitation',
