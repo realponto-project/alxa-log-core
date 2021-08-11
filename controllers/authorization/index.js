@@ -90,8 +90,6 @@ const getAll = async (req, res, next) => {
   const whereAuthorization = buildQueryAuthorization({ activated, driverId, operationId })
   const whereVehicle = buildQueryVehicle({ plate })
   
-  console.log('i am here', whereAuthorization)
-  
   try{
     const response = await AuthorizationModel.findAndCountAll({
       where: whereAuthorization,
@@ -117,7 +115,7 @@ const getAllByDriverId = async (req, res, next) => {
     if(!plate) throw new Error('plate is required')
 
     const response = await AuthorizationModel.findAll({
-      where: { driverId },
+      where: { activated: true, driverId },
       include: [
         OperationModel,
         {
