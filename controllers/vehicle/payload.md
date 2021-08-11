@@ -8,6 +8,7 @@ Para criar um vehicle  utilize o payload abaixo, como exemplo:
   "preventiveMaintenanceLimite": 6,
   "lastMaintenance": "Mon Jul 05 2021 19:55:48 GMT-0300 (Brasilia Standard Time)",
   "situation": "regular",
-  "vehicleTypeId": ""
+  "vehicleTypeId": "",
+  "minKm": 3000000
 }
 ```

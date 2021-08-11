@@ -36,7 +36,20 @@ const update = async (req, res, next) => {
 
 const getById = async (req, res, next) => {
   try {
-    const response = await VehicleModel.findByPk(req.params.id, { include: [VehicleTypeModel, TrackModel] })
+    const response = await VehicleModel.findByPk(req.params.id,
+      {
+        include:
+        [
+          VehicleTypeModel,
+          {
+            model: TrackModel,
+            limit: 1,
+            order: [['createdAt', 'DESC']]
+          }
+        ]
+      }
+    )
+
     res.json(response)
   } catch (error) {
     res.status(400).json({ error })

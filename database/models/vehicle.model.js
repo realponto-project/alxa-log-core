@@ -42,6 +42,11 @@ const Vehicle = (sequelize) => {
       unique: true,
       defaultValue: null,
     },
+    minKm: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: 30000
+    },
   })
   
   Vehicle.associate = (models) => {
