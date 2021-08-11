@@ -3,7 +3,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.sequelize.query(
-      `ALTER TYPE "enum_enum_maintenance_order_status" ADD VALUE 'external_service'`
+      `ALTER TYPE "enum_maintenanceOrders_status" ADD VALUE 'external_service'`
     )
   },
 
@@ -20,7 +20,7 @@ module.exports = {
                 FROM
                     pg_type
                 WHERE
-                    typname = 'enum_enum_maintenance_order_status'
+                    typname = 'enum_maintenanceOrders_status'
             )
     `)
   }
