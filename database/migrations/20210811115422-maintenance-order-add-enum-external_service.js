@@ -1,0 +1,27 @@
+'use strict'
+
+module.exports = {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.sequelize.query(
+      `ALTER TYPE "enum_enum_maintenance_order_status" ADD VALUE 'not_update'`
+    )
+  },
+
+  down: (queryInterface, Sequelize) => {
+    return queryInterface.sequelize.query(`
+        DELETE 
+        FROM
+            pg_enum
+        WHERE
+            enumlabel = 'not_update' AND
+            enumtypid = (
+                SELECT
+                    oid
+                FROM
+                    pg_type
+                WHERE
+                    typname = 'enum_enum_maintenance_order_status'
+            )
+    `)
+  }
+}
