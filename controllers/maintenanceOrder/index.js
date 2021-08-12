@@ -132,14 +132,14 @@ const buildQuery = ({ plate, status, services, priorities, dates, companyId, ope
   if (services.length > 0) {
     where = {
       ...where,
-      [and]: [{ service: { [or]: services } }]
+      service: { [or]: services } 
     }
   }
 
   if (priorities.length > 0) {
     where = {
       ...where,
-      [and]: [{ priority: { [or]: priorities } }]
+      priority: { [or]: priorities } 
     }
   }
 
@@ -168,7 +168,7 @@ const getAll = async (req, res, next) => {
 
   try {
     const count = await MaintenanceOrderModel.count({ where })
-    const rows = await MaintenanceOrderModel.findAll({ 
+    const rows = await MaintenanceOrderModel.findAll({
       where, 
       include: [
         CompanyModel,
@@ -178,13 +178,14 @@ const getAll = async (req, res, next) => {
           include: [DriverModel]
         }
       ], 
-        offset: (offset * limit), 
-        limit,
-        order: [
-          ['maintenanceDate', 'DESC'],
-        ]
-      })
-    res.json({ rows, count })
+      offset: (offset * limit), 
+      limit,
+      order: [
+        ['maintenanceDate', 'DESC'],
+      ]
+    })
+
+  res.json({ rows, count })
   } catch (error) {
     res.status(400).json({ error })
   }
