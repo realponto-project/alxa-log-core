@@ -209,6 +209,10 @@ const createEventToMaintenanceOrder =  async (req, res, next) => {
     if (eventsCreated === statusQuantityAllow[status] && response.status !== 'check-out') {
       throw new Error(`Allow only ${statusQuantityAllow[status]} to the event ${status}`)
     }
+
+    if (response.status === 'solicitation' && status !== 'check-in') {
+      throw new Error(`Not allowed created this status ${status} event to order with status solicitation`)
+    }
     
     await MaintenanceOrderEventModel.create({ userId, companyId, maintenanceOrderId, status }, { transaction })
 
