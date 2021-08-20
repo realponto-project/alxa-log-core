@@ -211,7 +211,7 @@ const createEventToMaintenanceOrder =  async (req, res, next) => {
       throw new Error(`Allow only ${statusQuantityAllow[status]} to the event ${status}`)
     }
 
-    if (response.status === 'solicitation' && (status !== 'check-in' || status !== 'cancel')) {
+    if (response.status === 'solicitation' && !(status === 'check-in' || status === 'cancel')) {
       throw new Error(`Not allowed created this status ${status} event to order with status solicitation`)
     }
     
