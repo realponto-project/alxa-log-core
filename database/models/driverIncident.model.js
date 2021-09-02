@@ -21,6 +21,12 @@ const DriverIncident = (sequelize) => {
         'accident',
         'collision',
         'vehicle_break_down',
+        'refusal_of_freight',
+        'absence_without_justification',
+        'absence_with_justification',
+        'speeding',
+        'lack_of_PPE',
+        'lack_of_cargo_lashing'
       ]),
       allowNull: false,
     },
