@@ -1,15 +1,5 @@
 "use strict";
 
-// 'accident',
-// 'collision',
-// 'vehicle_break_down',
-// 'refusal_of_freight',
-// 'absence_without_justification',
-// 'absence_with_justification',
-// 'speeding',
-// 'lack_of_PPE',
-// 'lack_of_cargo_lashing'
-
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.sequelize.transaction((t) => {
@@ -56,17 +46,7 @@ module.exports = {
           "driverIncidents",
           "incidentType",
           {
-            type: Sequelize.ENUM([
-              "accident",
-              "collision",
-              "vehicle_break_down",
-              "refusal_of_freight",
-              "absence_without_justification",
-              "absence_with_justification",
-              "speeding",
-              "lack_of_PPE",
-              "lack_of_cargo_lashing",
-            ]),
+            type: Sequelize.STRING,
             allowNull: false,
           },
           { transaction: t }
@@ -78,7 +58,11 @@ module.exports = {
           "driverIncidents",
           "incidentType",
           {
-            type: Sequelize.STRING,
+            type: Sequelize.ENUM([
+              "accident",
+              "collision",
+              "vehicle_break_down",
+            ]),
             allowNull: false,
           },
           { transaction: t }
