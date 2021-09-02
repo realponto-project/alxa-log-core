@@ -115,9 +115,6 @@ const buildQuery = ({ plate, status, services, priorities, dates, companyId, ope
         { plateCart: {
           [iLike]: '%' + plate + '%'
         } },
-        { plateHorse: {
-          [iLike]: '%' + plate + '%'
-        } },
       ],
     }
   }

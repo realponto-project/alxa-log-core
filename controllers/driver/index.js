@@ -181,14 +181,9 @@ const getIncidentsSummary = async (req, res, next) => {
       where: { driverId },
       attributes: [
         'incidentType',
-        [
-          Sequelize.fn('date_trunc', 'day', Sequelize.col('createdAt')),
-          'name'
-        ],
-        [Sequelize.fn('COUNT', Sequelize.col('createdAt')), 'count']
+        [Sequelize.fn('COUNT', Sequelize.col('incidentType')), 'count']
       ],
       group: [
-        Sequelize.fn('date_trunc', 'day', Sequelize.col('createdAt')),
         'incidentType'
       ],
     })
