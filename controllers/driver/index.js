@@ -173,6 +173,23 @@ const createIncident = async (req, res, next) => {
   }
 }
 
+const updateIncident = async (req, res, next) => {
+  const incidentId = pathOr(null, ['params', 'id'], req)
+  const payload = pathOr(null, ['body'], req)
+
+
+  try {
+    const response = await DriverIncidentModel.findByPk(incidentId)
+    await response.update(payload)
+    await response.reload()
+
+    res.json(response)
+  } catch (error) {
+
+    res.status(400).json({ error: error.message })
+  }
+}
+
 const getIncidentsSummary = async (req, res, next) => {
   const driverId = pathOr(null, ['params', 'id'], req)
 
@@ -200,5 +217,6 @@ module.exports = {
   getAll,
   createIncident,
   getIncidentsSummary,
-  getAllIncidentByDriverId
+  getAllIncidentByDriverId,
+  updateIncident
 }
