@@ -254,12 +254,8 @@ const getByIdMobile = async (req, res, next) => {
   }
 }
 
-const buildQuerySummary = ({ dates, companyId }) => {
+const buildQuerySummary = ({ dates }) => {
   const where = {}
-
-  if(companyId) {
-    where.companyId = companyId
-  }
 
   if(dates) {
     where.createdAt = { 
@@ -273,8 +269,7 @@ const buildQuerySummary = ({ dates, companyId }) => {
 
 
 const getSummaryOrderByStatus = async (req, res, next) => {
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  const where = buildQuerySummary({ ...req.query, companyId})
+  const where = buildQuerySummary(req.query)
 
   try {
     const response = await MaintenanceOrderModel.findAll({ 
@@ -323,8 +318,7 @@ const getSummaryOrderByCompany = async (req, res, next) => {
 }
 
 const getSummaryOrderByOperation = async (req, res, next) => {
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-  const where = buildQuerySummary({ ...req.query, companyId})
+  const where = buildQuerySummary(req.query)
   
   try {
     const response = await MaintenanceOrderModel.findAll({ 
