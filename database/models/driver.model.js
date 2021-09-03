@@ -29,7 +29,52 @@ const Driver = (sequelize) => {
       type: Sequelize.BOOLEAN,
       allowNull: false,
       defaultValue: false
-    }
+    },
+    expireDriverLicense: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: new Date()
+    },
+    rg: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      defaultValue: '12.345678-9'
+    },
+    cpf: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      defaultValue: '123.456789-10'
+    },
+    expireASO: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: new Date()
+    },
+    protocolInsuranceCompany: {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+      defaultValue: 3333
+    },
+    expireProtocolInsuranceCompany: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: new Date()
+    },
+    mop: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    },
+    bond: {
+      type: Sequelize.ENUM([
+        'AGREGADO',
+        'FROTA',
+        'TERCEIRO',
+        'TERCEIRO FIDELIZADO'
+      ]),
+      allowNull: false,
+      defaultValue: 'FROTA'
+    },
   })
   
   Driver.associate = (models) => {
