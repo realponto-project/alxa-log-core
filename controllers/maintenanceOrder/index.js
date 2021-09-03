@@ -115,9 +115,6 @@ const buildQuery = ({ plate, status, services, priorities, dates, companyId, ope
         { plateCart: {
           [iLike]: '%' + plate + '%'
         } },
-        { plateHorse: {
-          [iLike]: '%' + plate + '%'
-        } },
       ],
     }
   }
@@ -257,9 +254,31 @@ const getByIdMobile = async (req, res, next) => {
   }
 }
 
+const buildQuerySummary = ({ dates, companyId }) => {
+  const where = {}
+
+  if(companyId) {
+    where.companyId = companyId
+  }
+
+  if(dates) {
+    where.createdAt = { 
+      [gte]: moment(dates.start).startOf('day').toISOString(),
+      [lte]: moment(dates.end).endOf('day').toISOString()
+    }
+  }
+
+  return where
+}
+
+
 const getSummaryOrderByStatus = async (req, res, next) => {
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const where = buildQuerySummary({ ...req.query, companyId})
+
   try {
     const response = await MaintenanceOrderModel.findAll({ 
+      where,
       attributes: [
         'status',
         [
@@ -304,8 +323,12 @@ const getSummaryOrderByCompany = async (req, res, next) => {
 }
 
 const getSummaryOrderByOperation = async (req, res, next) => {
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const where = buildQuerySummary({ ...req.query, companyId})
+  
   try {
     const response = await MaintenanceOrderModel.findAll({ 
+      where,
       include: [{ model: OperationModel, include: [CompanyModel] }],
       attributes: [
         'status',
