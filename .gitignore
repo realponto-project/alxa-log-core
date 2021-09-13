@@ -2,3 +2,4 @@ node_modules
 db.env.json
 /ignore
 .env
+.env.**
