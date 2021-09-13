@@ -41,8 +41,10 @@ const createTrack = async (req, res, next) => {
       `${process.env[configStgDb.use_env_variable]}?sslmode=require`,
       configStgDb
       )
-    const trackModelStg = TrackModelStg(dbStg)
     const vehicleModelStg = VehicleModelStg(dbStg)
+    const trackModelStg = TrackModelStg(dbStg)
+
+    trackModelStg.associate(dbStg.models)
 
     const findVehicleStg = await vehicleModelStg.findOne({ where: { serialNumber }})
     if(findVehicleStg){
