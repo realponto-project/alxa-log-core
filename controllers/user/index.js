@@ -2,7 +2,6 @@ const { hash, compare } = require('bcrypt')
 const { omit, pathOr } = require('ramda')
 const database = require('../../database')
 const UserModel = database.model('user')
-const CompanyModel = database.model('company')
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { iLike } = Op
@@ -10,9 +9,8 @@ const { iLike } = Op
 const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const password = await hash('123456', 10)
-  console.log(req.body, { companyId, ...req.body, password });
   try {
-    const response = await UserModel.create({ companyId, ...req.body, password })
+    const response = await UserModel.create({ ...req.body, password, companyId })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error })
@@ -20,14 +18,9 @@ const create = async (req, res, next) => {
 }
 
 const update = async (req, res, next) => {
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
-
   const payload = omit(['password'], req.body)
   try {
     const findUser = await UserModel.findByPk(req.params.id)
-
-    // if(companyId !== findUser.companyId) throw new Error('Permission denied!')
-    
     await findUser.update(payload)
     const response = await findUser.reload()
     res.json(response)
@@ -63,13 +56,7 @@ const getAll = async (req, res, next) => {
   }
   
   try {
-    const response = await UserModel.findAndCountAll({
-      where,
-      limit,
-      offset: (offset * limit),
-      include: CompanyModel
-    })
-    
+    const response = await UserModel.findAndCountAll({ where, limit, offset: (offset * limit) })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error })
