@@ -51,9 +51,8 @@ const Driver = (sequelize) => {
       defaultValue: new Date()
     },
     protocolInsuranceCompany: {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-      defaultValue: 3333
+      type: Sequelize.STRING,
+      allowNull: true
     },
     expireProtocolInsuranceCompany: {
       type: Sequelize.DATE,
