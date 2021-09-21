@@ -53,6 +53,11 @@ const Company = (sequelize) => {
         allowNull: false,
       }
     })
+    models.company.belongsTo(models.companyGroup, {
+      foreignKey: {
+        allowNull: false,
+      }
+    })
   }
 
   return Company

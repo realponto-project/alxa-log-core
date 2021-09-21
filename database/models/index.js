@@ -1,6 +1,7 @@
 const Authorization = require('./authorization.model')
 const User = require('./user.model')
 const Company = require('./company.model')
+const CompanyGroup = require('./companyGroup.model')
 const Operation = require('./operation.model')
 const VehicleType = require('./vehicleType.model')
 const Vehicle = require('./vehicle.model')
@@ -15,6 +16,7 @@ const Track = require('./track.model')
 module.exports = [
   Authorization,
   Company,
+  CompanyGroup,
   User,
   Operation,
   VehicleType,
