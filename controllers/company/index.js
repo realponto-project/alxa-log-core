@@ -7,13 +7,16 @@ const { Op } = Sequelize
 const { iLike } = Op
 
 const getAll = async (req, res, next) => {
+  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
   const limit = pathOr(20, ['query', 'limit'], req)
   const offset = pathOr(0, ['query', 'offset'], req)
   const document = pathOr(null, ['query', 'document'], req)
   const name = pathOr(null, ['query', 'name'], req)
   const isDocument = document ? { document } : null
   const isName = name ? { name: { [iLike]: '%' + name + '%' } } : null
-  let where = {}
+  let where = {
+    companyGroupId
+  }
   
   if (isDocument) {
     where = isDocument
@@ -32,8 +35,10 @@ const getAll = async (req, res, next) => {
 }
 
 const createCompany = async (req, res, next) => {
+  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
+  
   try {
-    const response = await CompanyModel.create(req.body)
+    const response = await CompanyModel.create({ ...req.body, companyGroupId })
     res.json(response)
   } catch (error) {
     res.status(400).json(error)

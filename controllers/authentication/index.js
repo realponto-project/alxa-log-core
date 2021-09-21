@@ -1,21 +1,44 @@
 const { compare } = require('bcrypt')
 const jwt = require('jsonwebtoken')
+
+const { applySpec, path } = require('ramda')
+
 const database = require('../../database')
+
 const UserModel = database.model('user')
+const CompanyModel = database.model('company')
 
 const secret = process.env.SECRET
 
+const buildPayloadToken = applySpec({
+  id: path(['id']),
+  name: path(['name']),
+  document: path(['document']),
+  password: path(['password']),
+  userType: path(['userType']),
+  activated: path(['activated']),
+  createdAt: path(['createdAt']),
+  updatedAt: path(['updatedAt']),
+  companyId: path(['companyId']),
+  companyGroupId: path(['company', 'companyGroupId']),
+})
 
 const authentication = async (req, res, next) => {
  try {
-  const user = await UserModel.findOne({ where: { document: req.body.document } })
+  const user = await UserModel.findOne({
+    where: { document: req.body.document },
+    include: CompanyModel
+  })
+
+  const payloadToken = buildPayloadToken(user)
+  
   const checkedPassword = await compare(req.body.password, user.password)
 
   if(!checkedPassword) {
     throw new Error('Username or password do not match')
   }
 
-  const token = jwt.sign({ user }, secret, { expiresIn: '96h'})
+  const token = jwt.sign({ user: payloadToken }, secret, { expiresIn: '96h'})
   res.json({ user, token })
 
  } catch (error) {

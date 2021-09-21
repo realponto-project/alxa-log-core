@@ -57,6 +57,7 @@ const getById = async (req, res, next) => {
 }
 
 const getAll = async (req, res, next) => {
+  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
   const limit = pathOr(20, ['query', 'limit'], req)
   const offset = pathOr(0, ['query', 'offset'], req)
   const plate = pathOr(null, ['query', 'plate'], req)
@@ -75,13 +76,15 @@ const getAll = async (req, res, next) => {
 
 
   try {
-    const count = await VehicleModel.count({ where })
-    const rows = await VehicleModel.findAll({
+    const response = await VehicleModel.findAndCountAll({
       where,
-      include: [VehicleTypeModel],
+      include: [
+        VehicleTypeModel,
+        { model: CompanyModel, where: { companyGroupId } }
+      ],
       offset: (offset * limit),
       limit })
-    res.json({ rows, count })
+    res.json(response)
   } catch (error) {
     res.status(400).json({ error })
   }

@@ -45,15 +45,22 @@ const getById = async (req, res, next) => {
 }
 
 const getAll = async (req, res, next) => {
+  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
   const limit = pathOr(20, ['query', 'limit'], req)
   const offset = pathOr(0, ['query', 'offset'], req)
   const name = pathOr(null, ['query', 'name'], req)
+  
   const where = name ? { name: { [iLike]: '%' + name + '%' } } : {}
 
   try {
-    const count = await OperationModel.count({ where })
-    const response = await OperationModel.findAndCountAll({ where, include: [CompanyModel], limit, offset: (offset * limit), })
-    res.json({...response, count })
+    
+    const response = await OperationModel.findAndCountAll({
+      where,
+      include: { model: CompanyModel, where: { companyGroupId } },
+      limit,
+      offset: (offset * limit)
+    })
+  res.json(response)
   } catch (error) {
     res.status(400).json({ error })
   }

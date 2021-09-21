@@ -3,6 +3,8 @@ const database = require('../../database')
 const VehicleTypeModel = database.model('vehicleType')
 
 const Sequelize = require('sequelize')
+const CompanyModel = database.model('company')
+
 const { Op } = Sequelize
 const { iLike } = Op
 
@@ -40,13 +42,20 @@ const getById = async (req, res, next) => {
 }
 
 const getAll = async (req, res, next) => {
+  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
+
   const limit = pathOr(20, ['query', 'limit'], req)
   const offset = pathOr(0, ['query', 'offset'], req)
   const name = pathOr(null, ['query', 'name'], req)
   const where = name ? { name: { [iLike]: '%' + name + '%' } } : {}
 
   try {
-    const response = await VehicleTypeModel.findAndCountAll({ where, limit, offset: (offset * limit), })
+    const response = await VehicleTypeModel.findAndCountAll({
+      where,
+      include: { model: CompanyModel, where: { companyGroupId } },
+      limit,
+      offset: (offset * limit),
+    })
     res.json(response)
   } catch (error) {
     res.status(400).json({ error })

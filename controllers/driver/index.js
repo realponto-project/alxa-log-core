@@ -142,6 +142,7 @@ const getAllIncidentByDriverId = async (req, res, next) => {
 };
 
 const getAll = async (req, res, next) => {
+  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
   const limit = pathOr(20, ["query", "limit"], req);
   const offset = pathOr(0, ["query", "offset"], req);
   const driverLicense = pathOr(null, ["query", "driverLicense"], req);
@@ -177,22 +178,28 @@ const getAll = async (req, res, next) => {
     }
   })
 
+  const include =  { model: CompanyModel, where: { companyGroupId } }
+
   try {
     const response = await DriverModel.findAndCountAll({
       where,
+      include,
       limit,
       offset: offset * limit,
     });
 
     const countExpireDriverLicense = await DriverModel.count({
+      include,
       where: {...where, expireDriverLicense: { [lte]: moment().startOf("day") } },
     });
     const countExpireProtocolInsuranceCompany = await DriverModel.count({
+      include,
       where: {...where,
         expireProtocolInsuranceCompany: { [lte]: moment().startOf("day") },
       },
     });
     const countExpireASO = await DriverModel.count({
+      include,
       where: {...where, expireASO: { [lte]: moment().startOf("day") } },
     });
 
