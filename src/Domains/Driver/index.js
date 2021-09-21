@@ -54,6 +54,7 @@ class DomainDriver {
 
     const response = await DriverModel.findAndCountAll({
       ...buildQueryPagnation(query),
+      order: [["name", "ASC"]],
       where,
       include
     })
