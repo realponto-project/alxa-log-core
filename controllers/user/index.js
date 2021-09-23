@@ -42,6 +42,7 @@ const getById = async (req, res, next) => {
 }
 
 const getAll = async (req, res, next) => {
+  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
   const limit = pathOr(20, ['query', 'limit'], req)
   const offset = pathOr(0, ['query', 'offset'], req)
   const document = pathOr(null, ['query', 'document'], req)
@@ -65,7 +66,7 @@ const getAll = async (req, res, next) => {
       where,
       limit,
       offset: (offset * limit),
-      include: { model: CompanyModel, required: true }
+      include: { model: CompanyModel, where: { companyGroupId }}
     })
   
 
