@@ -66,7 +66,9 @@ const getAll = async (req, res, next) => {
       where,
       limit,
       offset: (offset * limit),
-      include: { model: CompanyModel, where: { companyGroupId }}
+      include: { model: CompanyModel,
+        where: { companyGroupId }
+      }
     })
   
 

@@ -1,4 +1,4 @@
-const { pathOr, pipe } = require('ramda')
+const { pathOr, pipe, multiply } = require('ramda')
 const database = require('../../database')
 const MaintenanceOrderModel = database.model('maintenanceOrder')
 const MaintenanceOrderEventModel = database.model('maintenanceOrderEvent')
@@ -405,7 +405,7 @@ const getAllCompanyId = async (req, res, next) => {
 
 const getAllOperationId = async (req, res, next) => {
   const limit = pathOr(20, ['query', 'limit'], req)
-  const offset = pathOr(0, ['query', 'offset'], req)
+  const offset = pipe(pathOr('0', ['query', 'offset']), Number, multiply(limit))(req)
   const operationId = pathOr(null, ['query', 'operationId'], req)
 
   const plate = pathOr(null, ['query', 'plate'], req)
@@ -431,6 +431,7 @@ const getAllOperationId = async (req, res, next) => {
       offset,
       limit
     })
+    
     res.json({ rows, count })
   } catch (error) {
     res.status(400).json({ error })

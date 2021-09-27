@@ -80,7 +80,10 @@ const getAll = async (req, res, next) => {
       where,
       include: [
         VehicleTypeModel,
-        { model: CompanyModel, where: { companyGroupId } }
+        { 
+          model: CompanyModel,
+          where: { companyGroupId }
+        }
       ],
       offset: (offset * limit),
       limit })

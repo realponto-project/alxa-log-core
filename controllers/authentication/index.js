@@ -31,7 +31,7 @@ const authentication = async (req, res, next) => {
   })
 
   const payloadToken = buildPayloadToken(user)
-  
+
   const checkedPassword = await compare(req.body.password, user.password)
 
   if(!checkedPassword) {

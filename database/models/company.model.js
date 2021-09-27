@@ -1,3 +1,4 @@
+const { replace } = require('ramda');
 const Sequelize = require('sequelize')
 
 const Company = (sequelize) => {
@@ -14,7 +15,10 @@ const Company = (sequelize) => {
     document: {
       type: Sequelize.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+      set(value) {
+        this.setDataValue('document', replace(/\D/g, '', value));
+      }
     },
     type: {
       type: Sequelize.ENUM(['filial', 'matriz']),

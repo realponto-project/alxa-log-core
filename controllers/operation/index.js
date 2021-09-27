@@ -56,7 +56,9 @@ const getAll = async (req, res, next) => {
     
     const response = await OperationModel.findAndCountAll({
       where,
-      include: { model: CompanyModel, where: { companyGroupId } },
+      include: { model: CompanyModel,
+        where: { companyGroupId }
+      },
       limit,
       offset: (offset * limit)
     })

@@ -178,7 +178,10 @@ const getAll = async (req, res, next) => {
     }
   })
 
-  const include =  { model: CompanyModel, where: { companyGroupId } }
+  const include =  { 
+    model: CompanyModel,
+    where: { companyGroupId }
+  }
 
   try {
     const response = await DriverModel.findAndCountAll({

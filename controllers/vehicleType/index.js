@@ -52,7 +52,9 @@ const getAll = async (req, res, next) => {
   try {
     const response = await VehicleTypeModel.findAndCountAll({
       where,
-      include: { model: CompanyModel, where: { companyGroupId } },
+      include: { model: CompanyModel, 
+        where: { companyGroupId }
+      },
       limit,
       offset: (offset * limit),
     })

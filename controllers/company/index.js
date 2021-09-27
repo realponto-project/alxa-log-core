@@ -1,33 +1,20 @@
+const Sequelize = require('sequelize')
+const { pathOr } = require('ramda')
+
 const database = require('../../database')
+const domainCompany = require('../../src/Damains/Company');
+
 const CompanyModel = database.model('company')
 const MaintenanceOrderModel = database.model('maintenanceOrder')
-const { pathOr } = require('ramda')
-const Sequelize = require('sequelize')
-const { Op } = Sequelize
-const { iLike } = Op
+
+const { Op: { iLike } } = Sequelize
 
 const getAll = async (req, res, next) => {
   const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
-  const limit = pathOr(20, ['query', 'limit'], req)
-  const offset = pathOr(0, ['query', 'offset'], req)
-  const document = pathOr(null, ['query', 'document'], req)
-  const name = pathOr(null, ['query', 'name'], req)
-  const isDocument = document ? { document } : null
-  const isName = name ? { name: { [iLike]: '%' + name + '%' } } : null
-  let where = {
-    companyGroupId
-  }
-  
-  if (isDocument) {
-    where = isDocument
-  }
-
-  if (isName) {
-    where = isName
-  }
 
   try {
-    const response = await CompanyModel.findAndCountAll({ where, limit, offset: (offset * limit) })
+    const response = await domainCompany.getAll({ ...req.query, companyGroupId })
+    
     res.json(response)
   } catch (error) {
     res.status(404).json(error)
@@ -38,7 +25,10 @@ const createCompany = async (req, res, next) => {
   const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
   
   try {
-    const response = await CompanyModel.create({ ...req.body, companyGroupId })
+    const response = await CompanyModel.create({ 
+      ...req.body,
+      companyGroupId
+     })
     res.json(response)
   } catch (error) {
     res.status(400).json(error)
