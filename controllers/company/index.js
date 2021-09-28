@@ -2,7 +2,7 @@ const Sequelize = require('sequelize')
 const { pathOr } = require('ramda')
 
 const database = require('../../database')
-const domainCompany = require('../../src/Damains/Company');
+const domainCompany = require('../../src/Domains/Company');
 
 const CompanyModel = database.model('company')
 const MaintenanceOrderModel = database.model('maintenanceOrder')
@@ -23,21 +23,26 @@ const getAll = async (req, res, next) => {
 
 const createCompany = async (req, res, next) => {
   const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
+  const transaction = await database.transaction()
   
   try {
-    const response = await CompanyModel.create({ 
-      ...req.body,
-      companyGroupId
-     })
+    const response = await domainCompany.create(
+      { ...req.body, companyGroupId },
+      { transaction }
+    )
+
+    await transaction.commit()
     res.json(response)
   } catch (error) {
+    await transaction.rollback()
     res.status(400).json(error)
   }
 }
 
 const getById = async (req, res, next) => {
   try {
-    const response = await CompanyModel.findByPk(req.params.id)
+    const response = await domainCompany.getById(req.params.id)
+
     res.json(response)
   } catch (error) {
     res.status(404).json(error)
@@ -45,12 +50,15 @@ const getById = async (req, res, next) => {
 }
 
 const update = async (req, res, next) => {
+  const transaction = await database.transaction()
+
   try {
-    const response = await CompanyModel.findByPk(req.params.id)
-    await response.update(req.body)
-    await response.reload()
+    const response = await domainCompany.update(req.params.id, req.body, { transaction })
+  
+    await transaction.commit()
     res.json(response)
   } catch (error) {
+    await transaction.rollback()
     res.status(400).json(error)
   }
 }

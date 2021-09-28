@@ -27,7 +27,18 @@ const companyFaker = (attrs) => {
   return merge(response, attrs)
 }
 
+const userFaker = (attrs) => {
+  const response = {
+    name: faker.internet.userName(),
+    document: String(faker.datatype.number()),
+    password: faker.internet.password()
+    }
+
+  return merge(response, attrs)
+}
+
 module.exports = {
   companyGroupFaker,
-  companyFaker
+  companyFaker,
+  userFaker
 }
