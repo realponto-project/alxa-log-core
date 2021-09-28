@@ -1,5 +1,5 @@
 const faker = require('faker')
-const { merge } = require('ramda')
+const { merge, concat } = require('ramda')
 const cnpj = require('@fnando/cnpj/commonjs')
 
 faker.locale = 'pt_BR'
@@ -37,8 +37,17 @@ const userFaker = (attrs) => {
   return merge(response, attrs)
 }
 
+const vehicleTypeFaker = (attrs) => {
+  const response = {
+    name: concat(faker.vehicle.type(), String(faker.datatype.number()))
+  }
+
+  return merge(response, attrs)
+}
+
 module.exports = {
   companyGroupFaker,
   companyFaker,
-  userFaker
+  userFaker,
+  vehicleTypeFaker
 }

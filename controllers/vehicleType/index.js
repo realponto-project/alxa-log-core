@@ -1,40 +1,50 @@
 const { pathOr } = require('ramda')
-const database = require('../../database')
-const VehicleTypeModel = database.model('vehicleType')
-
 const Sequelize = require('sequelize')
+
+const database = require('../../database')
+const domainVehicleType = require('../../src/Domains/VehicleType')
+
+const VehicleTypeModel = database.model('vehicleType')
 const CompanyModel = database.model('company')
 
-const { Op } = Sequelize
-const { iLike } = Op
+const { Op: { iLike } } = Sequelize
 
 const create = async (req, res, next) => {
   const userId = pathOr(null, ['decoded', 'user', 'id'], req)
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  const transaction = await database.transaction()
 
   try {
-    const response = await VehicleTypeModel.create({...req.body, userId, companyId })
+
+    const response = await domainVehicleType.create({...req.body, userId, companyId }, { transaction })
+
+    await transaction.commit()
     res.json(response)
   } catch (error) {
     
+    await transaction.rollback()
     res.status(400).json({ error: error.message })
   }
 }
 
 const update = async (req, res, next) => {
+  const transaction = await database.transaction()
+
   try {
-    const findUser = await VehicleTypeModel.findByPk(req.params.id)
-    await findUser.update(req.body)
-    const response = await findUser.reload()
+
+    const response = await domainVehicleType.update(req.params.id, req.body)
+
+    await transaction.commit()
     res.json(response)
   } catch (error) {
+    await transaction.rollback()
     res.status(400).json({ error })
   }
 }
 
 const getById = async (req, res, next) => {
   try {
-    const response = await VehicleTypeModel.findByPk(req.params.id)
+    const response = await domainVehicleType.getById(req.params.id)
     res.json(response)
   } catch (error) {
     res.status(400).json({ error })
@@ -44,20 +54,9 @@ const getById = async (req, res, next) => {
 const getAll = async (req, res, next) => {
   const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
 
-  const limit = pathOr(20, ['query', 'limit'], req)
-  const offset = pathOr(0, ['query', 'offset'], req)
-  const name = pathOr(null, ['query', 'name'], req)
-  const where = name ? { name: { [iLike]: '%' + name + '%' } } : {}
-
   try {
-    const response = await VehicleTypeModel.findAndCountAll({
-      where,
-      include: { model: CompanyModel, 
-        where: { companyGroupId }
-      },
-      limit,
-      offset: (offset * limit),
-    })
+    const response = await domainVehicleType.getAll({ ...req.query, companyGroupId })
+
     res.json(response)
   } catch (error) {
     res.status(400).json({ error })
