@@ -67,7 +67,7 @@ const getAll = async (req, res, next) => {
       where,
       limit,
       offset: (offset * limit),
-      include: CompanyModel
+      include: [CompanyModel]
     })
     
     res.json(response)
