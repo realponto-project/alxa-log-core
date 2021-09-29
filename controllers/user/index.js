@@ -1,7 +1,10 @@
 const { hash, compare } = require('bcrypt')
 const { omit, pathOr } = require('ramda')
 const database = require('../../database')
+
 const UserModel = database.model('user')
+const CompanyModel = database.model('company')
+
 const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { iLike } = Op
@@ -60,7 +63,7 @@ const getAll = async (req, res, next) => {
       where,
       limit,
       offset: (offset * limit),
-      include: [CompanyModel]
+      include: CompanyModel
     })
     
     res.json(response)
