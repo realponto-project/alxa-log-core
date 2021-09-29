@@ -9,6 +9,21 @@ const Sequelize = require('sequelize')
 const { Op } = Sequelize
 const { iLike } = Op
 
+const gambiarra = id => {
+  switch (id){
+    case 'ce21ee4a-4f62-4f98-a879-ba95e8833723':
+      return "JSL FREI DAMIÃO"
+    case '2d7d9602-89fd-4e34-87ff-40d2c6d619f3':
+      return "JSL MANUTENÇÃO SBC"
+    case 'ad7996c9-cab8-47d8-a89d-4a7a1f2a3272':
+      return "JSL CUBATÃO"
+    case '995437a6-f2d5-4555-bdbf-fc77b24d7208':
+      return "JSL INDAIATUBA"
+  }
+
+  return ""
+}
+
 const create = async (req, res, next) => {
   const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const password = await hash('123456', 10)
@@ -57,17 +72,24 @@ const getAll = async (req, res, next) => {
   if (isName) {
     where = isName
   }
-  
+
   try {
-    const response = await UserModel.findAndCountAll({
+    const count = await UserModel.count()
+
+    const rows = await UserModel.findAll({
       where,
       limit,
       offset: (offset * limit),
-      include: CompanyModel
+      // include: CompanyModel
     })
     
-    res.json(response)
+
+    res.json({ 
+      count,
+      rows: rows.map(item => ({ ... JSON.parse(JSON.stringify(item)), company: { name: gambiarra(item.companyId) } }))
+    })
   } catch (error) {
+    console.log(error);
     res.status(400).json({ error })
   }
 }
