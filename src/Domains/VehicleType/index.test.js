@@ -1,5 +1,7 @@
 const { UniqueConstraintError } = require('sequelize')
 
+require('../../../utils/jest/extends')
+
 const domainVehicleType = require('.')
 const factory = require('../../../utils/Mocks/factories')
 const faker = require('../../../utils/Mocks/fakers')
@@ -86,16 +88,42 @@ describe('domain vehicle type', () => {
     })
 
     it('should be able get many vehicle types', async () => {
-      expect.assertions(4)
+      expect.hasAssertions()
 
-      const vehicleTypes = await domainVehicleType.getAll()
+      const vehicleTypes = await domainVehicleType.getAll({
+        companyGroupId: globalMock.company.companyGroupId
+      })
 
       expect(vehicleTypes).toHaveProperty('count')
       expect(vehicleTypes.count).toBeGreaterThan(0)
       expect(vehicleTypes).toHaveProperty('rows')
-      expect(formatterDbValues(vehicleTypes.rows)).toStrictEqual(
-        expect.arrayContaining(formatterDbValues(vehicleTypesFactory))
-      )
+
+      vehicleTypes.rows.forEach((row) => {
+        expect(formatterDbValues(row)).toStrictEqual(
+          expect.objectContaining({
+            id: expect.toBeUUID(),
+            name: expect.any(String),
+            createdAt: expect.toBeDate(),
+            updatedAt: expect.toBeDate(),
+            userId: expect.toBeUUID(),
+            company: expect.objectContaining({
+              id: expect.toBeUUID(),
+              name: expect.any(String),
+              document: expect.stringMatching(/\d/g),
+              type: expect.stringMatching(/filial|matriz/),
+              zipcode: expect.stringMatching(/\d/g),
+              street: expect.any(String),
+              streetNumber: expect.any(String),
+              neighborhood: expect.any(String),
+              city: expect.any(String),
+              state: expect.any(String),
+              createdAt: expect.toBeDate(),
+              updatedAt: expect.toBeDate(),
+              companyGroupId: globalMock.company.companyGroupId
+            })
+          })
+        )
+      })
     })
 
     it('should be able get a vehicle type by id', async () => {

@@ -2,13 +2,15 @@ const { ValidationError } = require('sequelize')
 const { omit, replace } = require('ramda')
 const cnpj = require('@fnando/cnpj/commonjs')
 
+require('../../../utils/jest/extends')
+
 const domainCompany = require('.')
 const globalMock = require('../../../utils/Mocks/global')
 const factory = require('../../../utils/Mocks/factories')
 const fackers = require('../../../utils/Mocks/fakers')
 const formatterDbValues = require('../../../utils/formatterDbValues')
 
-describe('comapany domain', () => {
+describe('company domain', () => {
   describe('create', () => {
     let companyGroup = null
     let companyPayload = {}
@@ -76,27 +78,46 @@ describe('comapany domain', () => {
     })
 
     it('should get the companies', async () => {
-      expect.assertions(4)
+      expect.hasAssertions()
 
-      const comapnies = await domainCompany.getAll()
+      const compnies = await domainCompany.getAll({
+        companyGroupId: globalMock.company.companyGroupId
+      })
 
-      expect(comapnies).toHaveProperty('count')
-      expect(comapnies.count).toBeGreaterThan(0)
-      expect(comapnies).toHaveProperty('rows')
-      expect(formatterDbValues(comapnies.rows)).toStrictEqual(
-        expect.arrayContaining(formatterDbValues(companiesFactory))
-      )
+      expect(compnies).toHaveProperty('count')
+      expect(compnies.count).toBeGreaterThan(0)
+      expect(compnies).toHaveProperty('rows')
+
+      compnies.rows.forEach((row) => {
+        expect(formatterDbValues(row)).toStrictEqual(
+          expect.objectContaining({
+            id: expect.toBeUUID(),
+            name: expect.any(String),
+            document: expect.stringMatching(/\d/g),
+            type: expect.stringMatching(/filial|matriz/),
+            zipcode: expect.stringMatching(/\d/g),
+            street: expect.any(String),
+            streetNumber: expect.any(String),
+            neighborhood: expect.any(String),
+            city: expect.any(String),
+            state: expect.any(String),
+            createdAt: expect.toBeDate(),
+            updatedAt: expect.toBeDate(),
+            companyGroupId: globalMock.company.companyGroupId
+          })
+        )
+      })
     })
 
     it('should be able get company by id', async () => {
       expect.hasAssertions()
 
-      const comapany = companiesFactory[0]
+      const company = companiesFactory[0]
 
-      const companyFound = await domainCompany.getById(comapany.id)
+      const companyFound = await domainCompany.getById(company.id)
 
       expect(formatterDbValues(companyFound)).toStrictEqual(
-        formatterDbValues(comapany)
+        formatterDbValues(company)
       )
     })
   })
@@ -113,12 +134,12 @@ describe('comapany domain', () => {
       expect.assertions(1)
 
       const newValues = fackers.companyFaker()
-      const comapnyUpdated = await domainCompany.update(
+      const compnyUpdated = await domainCompany.update(
         companyFactory.id,
         newValues
       )
 
-      expect(formatterDbValues(comapnyUpdated)).toMatchObject(newValues)
+      expect(formatterDbValues(compnyUpdated)).toMatchObject(newValues)
     })
 
     it('should not be able upate if the id passed was invalid', async () => {

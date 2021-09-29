@@ -4,9 +4,6 @@ const Sequelize = require('sequelize')
 const database = require('../../database')
 const domainVehicleType = require('../../src/Domains/VehicleType')
 
-const VehicleTypeModel = database.model('vehicleType')
-const CompanyModel = database.model('company')
-
 const { Op: { iLike } } = Sequelize
 
 const create = async (req, res, next) => {

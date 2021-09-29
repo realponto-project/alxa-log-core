@@ -2,6 +2,7 @@ const { ValidationError } = require('sequelize')
 const { omit } = require('ramda')
 const { compare } = require('bcrypt')
 // const cnpj = require('@fnando/cnpj/commonjs')
+require('../../../utils/jest/extends')
 
 const domainUser = require('.')
 const globalMock = require('../../../utils/Mocks/global')
@@ -60,16 +61,51 @@ describe('user domain', () => {
     })
 
     it('should get the users', async () => {
-      expect.assertions(4)
+      expect.hasAssertions()
 
-      const users = await domainUser.getAll()
+      const users = await domainUser.getAll({
+        companyGroupId: globalMock.company.companyGroupId
+      })
 
       expect(users).toHaveProperty('count')
       expect(users.count).toBeGreaterThan(0)
       expect(users).toHaveProperty('rows')
-      expect(formatterDbValues(users.rows)).toStrictEqual(
-        expect.arrayContaining(formatterDbValues(usersFactory))
-      )
+      // expect(formatterDbValues(users.rows)).toStrictEqual(
+      //   expect.arrayContaining(formatterDbValues(usersFactory))
+      // )
+
+      users.rows.forEach((row) => {
+        expect(formatterDbValues(row)).toStrictEqual(
+          expect.objectContaining({
+            id: expect.toBeUUID(),
+            name: expect.any(String),
+            companyId: expect.toBeUUID(),
+            document: expect.stringMatching(/\d/g),
+            password: expect.any(String),
+            userType: expect.stringMatching(
+              /colaborator|colaborator_external|driver/
+            ),
+            activated: true,
+            createdAt: expect.toBeDate(),
+            updatedAt: expect.toBeDate(),
+            company: expect.objectContaining({
+              id: expect.toBeUUID(),
+              name: expect.any(String),
+              document: expect.stringMatching(/\d/g),
+              type: expect.stringMatching(/filial|matriz/),
+              zipcode: expect.stringMatching(/\d/g),
+              street: expect.any(String),
+              streetNumber: expect.any(String),
+              neighborhood: expect.any(String),
+              city: expect.any(String),
+              state: expect.any(String),
+              createdAt: expect.toBeDate(),
+              updatedAt: expect.toBeDate(),
+              companyGroupId: globalMock.company.companyGroupId
+            })
+          })
+        )
+      })
     })
 
     it('should be able get user by id', async () => {
@@ -97,7 +133,7 @@ describe('user domain', () => {
     it('should be able update a user', async () => {
       expect.assertions(1)
 
-      const newValues = fackers.userFaker()
+      const newValues = fackers.userFaker({ companyId: userFactory.companyId })
       const userUpdated = await domainUser.update(userFactory.id, newValues)
 
       expect(formatterDbValues(userUpdated)).toMatchObject(newValues)
