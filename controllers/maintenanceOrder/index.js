@@ -154,6 +154,7 @@ const buildQuery = ({ plate, status, services, priorities, dates, companyId, ope
 }
 
 const getAll = async (req, res, next) => {
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const limit = pathOr(20, ['query', 'limit'], req)
   const offset = pathOr(0, ['query', 'offset'], req)
   const plate = pathOr(null, ['query', 'plate'], req)
@@ -161,7 +162,7 @@ const getAll = async (req, res, next) => {
   const services =  pathOr([], ['query', 'services'], req)
   const priorities =  pathOr([], ['query', 'priorities'], req)
   const dates =  pathOr([], ['query', 'dates'], req)
-  const where = buildQuery({ plate, status, services, priorities, dates })
+  const where = buildQuery({ plate, status, services, priorities, dates, companyId })
 
   try {
     const count = await MaintenanceOrderModel.count({ where })
@@ -254,8 +255,10 @@ const getByIdMobile = async (req, res, next) => {
   }
 }
 
-const buildQuerySummary = ({ dates }) => {
+const buildQuerySummary = ({ dates, companyId }) => {
   const where = {}
+
+  if(companyId) where.companyId = companyId
 
   if(dates) {
     where.createdAt = { 
@@ -269,7 +272,8 @@ const buildQuerySummary = ({ dates }) => {
 
 
 const getSummaryOrderByStatus = async (req, res, next) => {
-  const where = buildQuerySummary(req.query)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)  
+  const where = buildQuerySummary({ ...req.query, companyId })
 
   try {
     const response = await MaintenanceOrderModel.findAll({ 
@@ -318,7 +322,8 @@ const getSummaryOrderByCompany = async (req, res, next) => {
 }
 
 const getSummaryOrderByOperation = async (req, res, next) => {
-  const where = buildQuerySummary(req.query)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)  
+  const where = buildQuerySummary({ ...req.query, companyId })
   
   try {
     const response = await MaintenanceOrderModel.findAll({ 
