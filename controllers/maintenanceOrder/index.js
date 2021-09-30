@@ -391,6 +391,9 @@ const getAllCompanyId = async (req, res, next) => {
         MaintenanceOrderEventModel,
         { model: MaintenanceOrderDriverModel, include: [DriverModel] }
       ],  
+      order: [
+        ['maintenanceDate', 'DESC'],
+      ],
       offset: (offset * limit), 
       limit
     })
@@ -419,8 +422,11 @@ const getAllOperationId = async (req, res, next) => {
       where,
       include: [
         CompanyModel,
-        MaintenanceOrderEventModel,
-        { model: MaintenanceOrderDriverModel, include: [DriverModel] }
+        { model: MaintenanceOrderEventModel, limit: 1, where: { status: 'check-in' }},
+        { model: MaintenanceOrderDriverModel, include: [DriverModel], limit: 1 }
+      ],        
+      order: [
+        ['maintenanceDate', 'DESC'],
       ],
       offset,
       limit
