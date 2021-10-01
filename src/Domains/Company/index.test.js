@@ -2,13 +2,13 @@ const { ValidationError } = require('sequelize')
 const { omit, replace } = require('ramda')
 const cnpj = require('@fnando/cnpj/commonjs')
 
-require('../../../utils/jest/extends')
+require('../../utils/jest/extends')
 
 const domainCompany = require('.')
-const globalMock = require('../../../utils/Mocks/global')
-const factory = require('../../../utils/Mocks/factories')
-const fackers = require('../../../utils/Mocks/fakers')
-const formatterDbValues = require('../../../utils/formatterDbValues')
+const globalMock = require('../../utils/Mocks/global')
+const factory = require('../../utils/Mocks/factories')
+const fackers = require('../../utils/Mocks/fakers')
+const formatterDbValues = require('../../utils/formatterDbValues')
 
 describe('company domain', () => {
   describe('create', () => {

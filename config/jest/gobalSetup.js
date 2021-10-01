@@ -1,5 +1,5 @@
 const database = require('../../database')
-const globalMock = require('../../utils/Mocks/global');
+const globalMock = require('../../src/utils/Mocks/global');
 
 const CompanyGroupModel = database.model('companyGroup')
 const CompanyModel = database.model('company')

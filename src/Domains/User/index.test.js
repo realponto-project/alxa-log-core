@@ -2,13 +2,13 @@ const { ValidationError } = require('sequelize')
 const { omit } = require('ramda')
 const { compare } = require('bcrypt')
 // const cnpj = require('@fnando/cnpj/commonjs')
-require('../../../utils/jest/extends')
+require('../../utils/jest/extends')
 
 const domainUser = require('.')
-const globalMock = require('../../../utils/Mocks/global')
-const factory = require('../../../utils/Mocks/factories')
-const fackers = require('../../../utils/Mocks/fakers')
-const formatterDbValues = require('../../../utils/formatterDbValues')
+const globalMock = require('../../utils/Mocks/global')
+const factory = require('../../utils/Mocks/factories')
+const fackers = require('../../utils/Mocks/fakers')
+const formatterDbValues = require('../../utils/formatterDbValues')
 
 describe('user domain', () => {
   describe('create', () => {
@@ -70,10 +70,6 @@ describe('user domain', () => {
       expect(users).toHaveProperty('count')
       expect(users.count).toBeGreaterThan(0)
       expect(users).toHaveProperty('rows')
-      // expect(formatterDbValues(users.rows)).toStrictEqual(
-      //   expect.arrayContaining(formatterDbValues(usersFactory))
-      // )
-
       users.rows.forEach((row) => {
         expect(formatterDbValues(row)).toStrictEqual(
           expect.objectContaining({

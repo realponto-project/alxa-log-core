@@ -1,12 +1,12 @@
 const { UniqueConstraintError } = require('sequelize')
 
-require('../../../utils/jest/extends')
+require('../../utils/jest/extends')
 
 const domainVehicleType = require('.')
-const factory = require('../../../utils/Mocks/factories')
-const faker = require('../../../utils/Mocks/fakers')
-const formatterDbValues = require('../../../utils/formatterDbValues')
-const globalMock = require('../../../utils/Mocks/global')
+const factory = require('../../utils/Mocks/factories')
+const faker = require('../../utils/Mocks/fakers')
+const formatterDbValues = require('../../utils/formatterDbValues')
+const globalMock = require('../../utils/Mocks/global')
 
 describe('domain vehicle type', () => {
   let userMock = null

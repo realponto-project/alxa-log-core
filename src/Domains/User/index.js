@@ -1,41 +1,11 @@
-const {
-  propOr,
-  applySpec,
-  multiply,
-  prop,
-  keys,
-  pipe,
-  filter,
-  __,
-  mergeAll,
-  map,
-  assoc,
-  ifElse,
-  always
-} = require('ramda')
+const { propOr, applySpec, prop, always } = require('ramda')
 const { hash, compare } = require('bcrypt')
-const Sequelize = require('sequelize')
 
 const database = require('../../../database')
+const { buildQueryPagnation, buildWhere } = require('../../utils')
 
 const UserModel = database.model('user')
 const CompanyModel = database.model('company')
-
-const {
-  Op: { iLike }
-} = Sequelize
-
-const removeKeysWithUndefinedValues = (obj) => {
-  return pipe(
-    keys,
-    filter(prop(__, obj)),
-    map((key) => assoc(key, prop(key, obj), {})),
-    mergeAll
-  )(obj)
-}
-
-const calcOffset = (obj) =>
-  multiply(propOr(0, 'offset', obj), propOr(20, 'limit', obj))
 
 class DomainUser {
   async create(user, options = {}) {
@@ -52,30 +22,17 @@ class DomainUser {
 
   async getAll(query) {
     const buildQuery = applySpec({
-      where: pipe(
-        applySpec({
-          document: prop('document'),
-          name: ifElse(
-            prop('name'),
-            pipe(prop('name'), (value) => ({ [iLike]: '%' + value + '%' })),
-            always(null)
-          )
-        }),
-        removeKeysWithUndefinedValues
-      ),
-      limit: propOr(20, 'limit'),
-      offset: calcOffset,
+      where: buildWhere(['document', ['name', 'iLike']]),
       include: applySpec({
         model: always(CompanyModel),
-        where: pipe(
-          applySpec({
-            companyGroupId: prop('companyGroupId')
-          })
-        )
+        where: buildWhere(['companyGroupId'])
       })
     })
 
-    const response = await UserModel.findAndCountAll(buildQuery(query))
+    const response = await UserModel.findAndCountAll({
+      ...buildQueryPagnation(query),
+      ...buildQuery(query)
+    })
 
     return response
   }

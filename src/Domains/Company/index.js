@@ -1,35 +1,9 @@
-const {
-  propOr,
-  applySpec,
-  prop,
-  keys,
-  pipe,
-  filter,
-  __,
-  mergeAll,
-  map,
-  assoc,
-  ifElse,
-  always
-} = require('ramda')
-const Sequelize = require('sequelize')
+const { propOr } = require('ramda')
 
 const database = require('../../../database')
+const { buildQueryPagnation, buildWhere } = require('../../utils')
 
 const CompanyModel = database.model('company')
-
-const {
-  Op: { iLike }
-} = Sequelize
-
-const removeKeysWithUndefinedValues = (obj) => {
-  return pipe(
-    keys,
-    filter(prop(__, obj)),
-    map((key) => assoc(key, prop(key, obj), {})),
-    mergeAll
-  )(obj)
-}
 
 class DomainCompany {
   async create(company, options = {}) {
@@ -41,24 +15,14 @@ class DomainCompany {
   }
 
   async getAll(query) {
-    const buildQuery = applySpec({
-      where: pipe(
-        applySpec({
-          companyGroupId: prop('companyGroupId'),
-          document: prop('document'),
-          name: ifElse(
-            prop('name'),
-            pipe(prop('name'), (value) => ({ [iLike]: '%' + value + '%' })),
-            always(null)
-          )
-        }),
-        removeKeysWithUndefinedValues
-      ),
-      limit: propOr(20, 'limit'),
-      offset: propOr(0, 'offset')
-    })
+    const where = buildWhere(['companyGroupId', 'document', ['name', 'iLike']])(
+      query
+    )
 
-    const response = await CompanyModel.findAndCountAll(buildQuery(query))
+    const response = await CompanyModel.findAndCountAll({
+      ...buildQueryPagnation(query),
+      where
+    })
 
     return response
   }
