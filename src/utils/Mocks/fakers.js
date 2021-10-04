@@ -79,10 +79,20 @@ const driverFaker = (attrs) => {
   return merge(response, attrs)
 }
 
+const operationFaker = (attrs) => {
+  const response = {
+    name: `${faker.vehicle.manufacturer()} ${faker.address.city()}`,
+    vacancy: faker.datatype.number(10)
+  }
+
+  return merge(response, attrs)
+}
+
 module.exports = {
   companyGroupFaker,
   companyFaker,
   driverFaker,
+  operationFaker,
   userFaker,
   vehicleTypeFaker,
   vehicleFaker
