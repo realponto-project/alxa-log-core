@@ -13,12 +13,17 @@ const {
   ifElse,
   always,
   forEach,
-  type
+  type,
+  length,
+  isEmpty,
+  not,
+  path
 } = require('ramda')
 const Sequelize = require('sequelize')
+const moment = require('moment')
 
 const {
-  Op: { iLike }
+  Op: { iLike, gte, lte }
 } = Sequelize
 
 const removeFiledsNilOrEmpty = (values) => {
@@ -68,6 +73,32 @@ const appplyILike = (propName) =>
     always(null)
   )
 
+const validateRangeDate = (propName) =>
+  pipe(prop(propName), (value) => {
+    if (type(value) !== 'Array' || length(value) !== 2) return false
+
+    if (
+      pipe(
+        filter((item) => !moment(item).isValid()),
+        isEmpty,
+        not
+      )(value)
+    )
+      return false
+
+    return true
+  })
+
+const appplyRangeDate = (propName) =>
+  ifElse(
+    validateRangeDate(propName),
+    pipe(prop(propName), (v) => ({
+      [gte]: moment(v[0]).startOf('day').toISOString(),
+      [lte]: moment(v[1]).startOf('day').toISOString()
+    })),
+    always(null)
+  )
+
 const calcOffset = (obj) =>
   multiply(propOr(0, 'offset', obj), propOr(20, 'limit', obj))
 
@@ -75,6 +106,10 @@ const applyOp = (propName, op) => {
   switch (op) {
     case 'iLike':
       return appplyILike(propName)
+    case 'rangeDate':
+      return appplyRangeDate(propName)
+    case 'lteToday':
+      return always({ [lte]: moment().startOf('day') })
   }
 
   return prop(propName)

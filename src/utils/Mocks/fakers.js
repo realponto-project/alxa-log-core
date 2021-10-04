@@ -1,6 +1,7 @@
 const faker = require('faker')
 const { merge, concat } = require('ramda')
 const cnpj = require('@fnando/cnpj/commonjs')
+const moment = require('moment')
 
 faker.locale = 'pt_BR'
 
@@ -54,9 +55,34 @@ const vehicleFaker = (attrs) => {
   return merge(response, attrs)
 }
 
+const driverFaker = (attrs) => {
+  const response = {
+    name: `${faker.name.firstName()} ${faker.name.lastName()}`,
+    phone: faker.phone.phoneNumberFormat(),
+    driverLicense: String(
+      faker.datatype.number({ max: 9999999999, min: 1000000000 })
+    ),
+    expireDriverLicense: faker.date.between(
+      moment('01012021', 'DDMMYYYY'),
+      moment('01012023', 'DDMMYYYY')
+    ),
+    expireASO: faker.date.between(
+      moment('01012021', 'DDMMYYYY'),
+      moment('01012023', 'DDMMYYYY')
+    ),
+    expireProtocolInsuranceCompany: faker.date.between(
+      moment('01012021', 'DDMMYYYY'),
+      moment('01012023', 'DDMMYYYY')
+    )
+  }
+
+  return merge(response, attrs)
+}
+
 module.exports = {
   companyGroupFaker,
   companyFaker,
+  driverFaker,
   userFaker,
   vehicleTypeFaker,
   vehicleFaker

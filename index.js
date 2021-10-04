@@ -1,4 +1,6 @@
+// require('dotenv').config({  })
 require('dotenv').config({ path: '.env.test' })
+
 const Express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')

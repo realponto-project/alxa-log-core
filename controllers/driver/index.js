@@ -3,6 +3,7 @@ const Sequelize = require("sequelize");
 const moment = require("moment");
 
 const database = require("../../database");
+const domainDriver = require('../../src/Domains/Driver');
 
 const DriverModel = database.model("driver");
 const DriverIncidentModel = database.model("driverIncident");
@@ -64,36 +65,51 @@ const buildQueryVehicle = ({ plate }) => {
 const create = async (req, res, next) => {
   const userId = pathOr(null, ["decoded", "user", "id"], req);
   const companyId = pathOr(null, ["decoded", "user", "companyId"], req);
+  const transaction = await database.transaction()
 
   try {
-    const response = await DriverModel.create(
-      { ...req.body, userId, companyId, authorizationOnboarding: false },
-      { include: [] }
-    );
+    const response = await domainDriver.create({ ...req.body, userId, companyId })
+  
     res.json(response);
+    await transaction.commit();
   } catch (error) {
     res.status(400).json({ error: error.message });
+    await transaction.rollback();
   }
 };
 
 const update = async (req, res, next) => {
+  const transaction = await database.transaction()
   try {
-    const findUser = await DriverModel.findByPk(req.params.id, { include: [] });
-    await findUser.update(req.body);
-    const response = await findUser.reload();
+
+    const response = await domainDriver.update(req.params.id, req.body, { transaction } )
     res.json(response);
+    await transaction.commit();
   } catch (error) {
     res.status(400).json({ error });
+    await transaction.rollback();
   }
 };
 
 const getById = async (req, res, next) => {
   try {
-    const response = await DriverModel.findByPk(req.params.id);
+    const response = await domainDriver.getById(req.params.id);
 
     res.json(response);
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+};
+
+const getAll = async (req, res, next) => {
+  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
+
+  try {
+    const response = await domainDriver.getAll({...req.query, companyGroupId})
+
+    res.json(response);
+  } catch (error) {
+    res.status(400).json({ error });
   }
 };
 
@@ -141,79 +157,7 @@ const getAllIncidentByDriverId = async (req, res, next) => {
   }
 };
 
-const getAll = async (req, res, next) => {
-  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
-  const limit = pathOr(20, ["query", "limit"], req);
-  const offset = pathOr(0, ["query", "offset"], req);
-  const driverLicense = pathOr(null, ["query", "driverLicense"], req);
-  const name = pathOr(null, ["query", "name"], req);
- 
 
-  const isDriverLicense = driverLicense
-    ? { driverLicense: { [iLike]: "%" + driverLicense + "%" } }
-    : null;
-  const isName = name ? { name: { [iLike]: "%" + name + "%" } } : null;
-  let where = {};
-
-  if (isDriverLicense) {
-    where = isDriverLicense;
-  }
-
-  if (isName) {
-    where = isName;
-  }
-  const expires = [
-    'expireDriverLicense',
-    'expireASO',
-    'expireProtocolInsuranceCompany',
-  ];
-
-  expires.forEach(expire => {
-    const expireValue = path(["query", expire], req);
-    if (expireValue) {
-      where[expire] = {
-        [gte]: moment(expireValue[0]).startOf("day").toISOString(),
-        [lte]: moment(expireValue[1]).startOf("day").toISOString(),
-      };
-    }
-  })
-
-  const include =  { 
-    model: CompanyModel,
-    where: { companyGroupId }
-  }
-
-  try {
-    const response = await DriverModel.findAndCountAll({
-      where,
-      include,
-      limit,
-      offset: offset * limit,
-    });
-
-    const countExpireDriverLicense = await DriverModel.count({
-      include,
-      where: {...where, expireDriverLicense: { [lte]: moment().startOf("day") } },
-    });
-    const countExpireProtocolInsuranceCompany = await DriverModel.count({
-      include,
-      where: {...where,
-        expireProtocolInsuranceCompany: { [lte]: moment().startOf("day") },
-      },
-    });
-    const countExpireASO = await DriverModel.count({
-      include,
-      where: {...where, expireASO: { [lte]: moment().startOf("day") } },
-    });
-
-    res.json({...response,
-      countExpireDriverLicense,
-      countExpireProtocolInsuranceCompany,
-      countExpireASO, });
-  } catch (error) {
-    res.status(400).json({ error });
-  }
-};
 
 const getSummaryExpire = async (req, res, next) => {
   try {
