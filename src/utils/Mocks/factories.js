@@ -15,6 +15,7 @@ const {
   vehicleFaker
 } = require('./fakers')
 
+const AuthorizationModel = database.model('authorization')
 const CompanyGroupModel = database.model('companyGroup')
 const CompanyModel = database.model('company')
 const DriverModel = database.model('driver')
@@ -25,6 +26,17 @@ const VehicleTypeModel = database.model('vehicleType')
 const VehicleModel = database.model('vehicle')
 
 factory.define('companyGroup', CompanyGroupModel, companyGroupFaker)
+
+factory.define('authorization', AuthorizationModel, (attrs) =>
+  merge(
+    {
+      driverId: factory.assoc('driver', 'id'),
+      operationId: factory.assoc('operation', 'id'),
+      vehicleId: factory.assoc('vehicle', 'id')
+    },
+    attrs
+  )
+)
 
 factory.define('company', CompanyModel, (attrs) =>
   companyFaker(

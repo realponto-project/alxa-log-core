@@ -4,10 +4,7 @@ const { pathOr } = require('ramda')
 const database = require('../../database')
 const domainCompany = require('../../src/Domains/Company');
 
-const CompanyModel = database.model('company')
 const MaintenanceOrderModel = database.model('maintenanceOrder')
-
-const { Op: { iLike } } = Sequelize
 
 const getAll = async (req, res, next) => {
   const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)

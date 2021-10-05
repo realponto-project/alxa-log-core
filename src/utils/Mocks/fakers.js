@@ -78,7 +78,8 @@ const driverIncidentFaker = (attrs) => {
       moment('01012021', 'DDMMYYYY'),
       moment('01012023', 'DDMMYYYY')
     ),
-    incidentDescription: faker.lorem.sentences(),
+    incidentDescription: faker.lorem.sentence(),
+    // incidentDescription: faker.lorem.sentences(),
     incidentType: randomOf(incidentTypes)
   }
 
