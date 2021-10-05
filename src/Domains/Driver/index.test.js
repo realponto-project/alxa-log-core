@@ -101,7 +101,7 @@ describe('domain driver', () => {
       expect.hasAssertions()
 
       const drivers = await domainDriver.getAll({
-        companyGroupId: globalMock.company.companyGNumberroupId
+        companyGroupId: globalMock.company.companyGroupId
       })
 
       expect(drivers).toHaveProperty('count')
@@ -131,7 +131,6 @@ describe('domain driver', () => {
             bond: expect.stringMatching(
               /AGREGADO|FROTA|TERCEIRO|TERCEIRO FIDELIZADO/
             ),
-
             expireDriverLicense: expect.toBeDate(),
             expireASO: expect.toBeDate(),
             createdAt: expect.toBeDate(),

@@ -120,7 +120,11 @@ const buildWhere = (props) => {
 
   forEach((item) => {
     if (type(item) === 'Array') {
-      spec[item[0]] = applyOp(item[0], item[1])
+      if (length(item) === 3) {
+        spec[item[2]] = applyOp(item[0], item[1])
+      } else {
+        spec[item[0]] = applyOp(item[0], item[1])
+      }
     } else {
       spec[item] = prop(item)
     }

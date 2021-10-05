@@ -1,9 +1,29 @@
 const faker = require('faker')
-const { merge, concat } = require('ramda')
+const { merge, concat, length, pipe, subtract, __ } = require('ramda')
 const cnpj = require('@fnando/cnpj/commonjs')
 const moment = require('moment')
 
 faker.locale = 'pt_BR'
+
+const incidentTypes = [
+  'accident',
+  'collision',
+  'vehicle_break_down',
+  'refusal_of_freight',
+  'absence_without_justification',
+  'absence_with_justification',
+  'speeding',
+  'lack_of_PPE',
+  'lack_of_cargo_lashing'
+]
+
+const lastPosition = pipe(length, subtract(__, 1))
+
+const randomOf = (list) => {
+  const random = faker.datatype.number({ min: 0, max: lastPosition(list) })
+
+  return list[random]
+}
 
 const companyGroupFaker = (attrs) => {
   const response = {
@@ -23,6 +43,43 @@ const companyFaker = (attrs) => {
     city: faker.address.city(),
     state: faker.address.state(),
     document: cnpj.generate()
+  }
+
+  return merge(response, attrs)
+}
+
+const driverFaker = (attrs) => {
+  const response = {
+    name: `${faker.name.firstName()} ${faker.name.lastName()}`,
+    phone: faker.phone.phoneNumberFormat(),
+    driverLicense: String(
+      faker.datatype.number({ max: 9999999999, min: 1000000000 })
+    ),
+    expireDriverLicense: faker.date.between(
+      moment('01012021', 'DDMMYYYY'),
+      moment('01012023', 'DDMMYYYY')
+    ),
+    expireASO: faker.date.between(
+      moment('01012021', 'DDMMYYYY'),
+      moment('01012023', 'DDMMYYYY')
+    ),
+    expireProtocolInsuranceCompany: faker.date.between(
+      moment('01012021', 'DDMMYYYY'),
+      moment('01012023', 'DDMMYYYY')
+    )
+  }
+
+  return merge(response, attrs)
+}
+
+const driverIncidentFaker = (attrs) => {
+  const response = {
+    incidentDate: faker.date.between(
+      moment('01012021', 'DDMMYYYY'),
+      moment('01012023', 'DDMMYYYY')
+    ),
+    incidentDescription: faker.lorem.sentences(),
+    incidentType: randomOf(incidentTypes)
   }
 
   return merge(response, attrs)
@@ -55,30 +112,6 @@ const vehicleFaker = (attrs) => {
   return merge(response, attrs)
 }
 
-const driverFaker = (attrs) => {
-  const response = {
-    name: `${faker.name.firstName()} ${faker.name.lastName()}`,
-    phone: faker.phone.phoneNumberFormat(),
-    driverLicense: String(
-      faker.datatype.number({ max: 9999999999, min: 1000000000 })
-    ),
-    expireDriverLicense: faker.date.between(
-      moment('01012021', 'DDMMYYYY'),
-      moment('01012023', 'DDMMYYYY')
-    ),
-    expireASO: faker.date.between(
-      moment('01012021', 'DDMMYYYY'),
-      moment('01012023', 'DDMMYYYY')
-    ),
-    expireProtocolInsuranceCompany: faker.date.between(
-      moment('01012021', 'DDMMYYYY'),
-      moment('01012023', 'DDMMYYYY')
-    )
-  }
-
-  return merge(response, attrs)
-}
-
 const operationFaker = (attrs) => {
   const response = {
     name: `${faker.vehicle.manufacturer()} ${faker.address.city()}`,
@@ -92,6 +125,7 @@ module.exports = {
   companyGroupFaker,
   companyFaker,
   driverFaker,
+  driverIncidentFaker,
   operationFaker,
   userFaker,
   vehicleTypeFaker,
