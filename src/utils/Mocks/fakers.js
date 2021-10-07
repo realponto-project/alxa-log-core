@@ -17,6 +17,25 @@ const incidentTypes = [
   'lack_of_cargo_lashing'
 ]
 
+const priorities = ['low', 'medium', 'high']
+
+const statusMaintenanceOrder = [
+  'cancel',
+  'service_external',
+  'awaiting_budget',
+  'solicitation',
+  'check-in',
+  'avaiable',
+  'parking',
+  'courtyard',
+  'awaiting_repair',
+  'dock',
+  'wash',
+  'supply',
+  'check-out',
+  'external_service'
+]
+
 const lastPosition = pipe(length, subtract(__, 1))
 
 const randomOf = (list) => {
@@ -86,6 +105,34 @@ const driverIncidentFaker = (attrs) => {
   return merge(response, attrs)
 }
 
+const maintenanceOrderFaker = (attrs) => {
+  const response = {
+    plateHorse: `${faker.lorem.word(3)}-${faker.datatype.number(9999)}`,
+    plateCart: `${faker.lorem.word(3)}-${faker.datatype.number(9999)}`,
+    maintenanceDate: faker.date.between(
+      moment('01012021', 'DDMMYYYY'),
+      moment('01012023', 'DDMMYYYY')
+    ),
+    fleet: faker.lorem.word(),
+    costCenter: faker.lorem.word(),
+    serviceDescription: faker.lorem.sentence(),
+    service: randomOf(['preventive', 'corrective']),
+    priority: randomOf(priorities),
+    status: randomOf(statusMaintenanceOrder)
+  }
+
+  return merge(response, attrs)
+}
+
+const operationFaker = (attrs) => {
+  const response = {
+    name: `${faker.vehicle.manufacturer()} ${faker.address.city()}`,
+    vacancy: faker.datatype.number(10)
+  }
+
+  return merge(response, attrs)
+}
+
 const userFaker = (attrs) => {
   const response = {
     name: faker.internet.userName(),
@@ -113,20 +160,12 @@ const vehicleFaker = (attrs) => {
   return merge(response, attrs)
 }
 
-const operationFaker = (attrs) => {
-  const response = {
-    name: `${faker.vehicle.manufacturer()} ${faker.address.city()}`,
-    vacancy: faker.datatype.number(10)
-  }
-
-  return merge(response, attrs)
-}
-
 module.exports = {
   companyGroupFaker,
   companyFaker,
   driverFaker,
   driverIncidentFaker,
+  maintenanceOrderFaker,
   operationFaker,
   userFaker,
   vehicleTypeFaker,

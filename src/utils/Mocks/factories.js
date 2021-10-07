@@ -9,6 +9,7 @@ const {
   companyFaker,
   driverFaker,
   driverIncidentFaker,
+  maintenanceOrderFaker,
   operationFaker,
   userFaker,
   vehicleTypeFaker,
@@ -20,6 +21,7 @@ const CompanyGroupModel = database.model('companyGroup')
 const CompanyModel = database.model('company')
 const DriverModel = database.model('driver')
 const DriverIncidentModel = database.model('driverIncident')
+const MaintenanceOrderModel = database.model('maintenanceOrder')
 const OperationModel = database.model('operation')
 const UserModel = database.model('user')
 const VehicleTypeModel = database.model('vehicleType')
@@ -70,6 +72,19 @@ factory.define('driverIncident', DriverIncidentModel, (attrs) =>
         vehicleId: factory.assoc('vehicle', 'id'),
         operationId: factory.assoc('operation', 'id'),
         driverId: factory.assoc('driver', 'id')
+      },
+      attrs
+    )
+  )
+)
+
+factory.define('maintenanceOrder', MaintenanceOrderModel, (attrs) =>
+  maintenanceOrderFaker(
+    merge(
+      {
+        companyId: factory.assoc('company', 'id'),
+        userId: factory.assoc('user', 'id'),
+        operationId: factory.assoc('operation', 'id')
       },
       attrs
     )
