@@ -5,6 +5,7 @@ const faker = require('../../utils/Mocks/fakers')
 const factory = require('../../utils/Mocks/factories')
 const formatterDbValues = require('../../utils/formatterDbValues')
 const globalMock = require('../../utils/Mocks/global')
+const { omit } = require('ramda')
 
 describe('domain maintenance order', () => {
   let companyFactory = null
@@ -32,7 +33,11 @@ describe('domain maintenance order', () => {
 
       await expect(
         domainMaintenanceOrder.create(maintenanceOrderMock)
-      ).resolves.toStrictEqual(expect.objectContaining(maintenanceOrderMock))
+      ).resolves.toStrictEqual(
+        expect.objectContaining(
+          omit(['driverId', 'fleet'], maintenanceOrderMock)
+        )
+      )
     })
   })
 
@@ -73,7 +78,7 @@ describe('domain maintenance order', () => {
       )
 
       expect(formatterDbValues(maintenanceOrder)).toStrictEqual(
-        formatterDbValues(maintenanceOrderMock)
+        expect.objectContaining(formatterDbValues(maintenanceOrderMock))
       )
     })
 
@@ -82,7 +87,6 @@ describe('domain maintenance order', () => {
 
       const maintenanceOrders = await domainMaintenanceOrder.getAll({
         companyId: globalMock.company.id
-        // companyGroupId: globalMock.company.companyGroupId
       })
 
       expect(maintenanceOrders).toHaveProperty('count')
@@ -107,7 +111,24 @@ describe('domain maintenance order', () => {
             priority: expect.any(String),
             service: expect.any(String),
             serviceDescription: expect.any(String),
-            status: expect.any(String)
+            status: expect.any(String),
+            company: expect.objectContaining({
+              id: expect.toBeUUID(),
+              name: expect.any(String),
+              document: expect.stringMatching(/\d/g),
+              type: expect.stringMatching(/filial|matriz/),
+              zipcode: expect.stringMatching(/\d/g),
+              street: expect.any(String),
+              streetNumber: expect.any(String),
+              neighborhood: expect.any(String),
+              city: expect.any(String),
+              state: expect.any(String),
+              createdAt: expect.toBeDate(),
+              updatedAt: expect.toBeDate(),
+              companyGroupId: globalMock.company.companyGroupId
+            }),
+            maintenanceOrderDrivers: expect.any(Array),
+            maintenanceOrderEvents: expect.any(Array)
           })
         )
       })
