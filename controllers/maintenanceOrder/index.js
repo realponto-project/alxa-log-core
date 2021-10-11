@@ -77,6 +77,31 @@ const getById = async (req, res, next) => {
   }
 }
 
+const getAll = async (req, res, next) => {
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+  
+  try {
+    const response = await domainMaintenanceOrder.getAll({ ...req.query, companyId })
+    
+    res.json(response)
+  } catch (error) {
+    res.status(400).json({ error })
+  }
+}
+
+const getAllCompanyId = async (req, res, next) => {
+  const companyId = pathOr(null, ['query', 'companyId'], req)
+
+  try {
+    const response = await domainMaintenanceOrder.getAll({ ...req.query, companyId })
+    
+    res.json(response)
+  } catch (error) {
+    res.status(400).json({ error })
+  }
+}
+
+
 const buildQuery = ({ plate, status, services, priorities, dates, companyId, operationId }) => {
   let where = {}
 
@@ -139,17 +164,42 @@ const buildQuery = ({ plate, status, services, priorities, dates, companyId, ope
   return where
 }
 
-const getAll = async (req, res, next) => {
-  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
+
+const getAllOperationId = async (req, res, next) => {
+  const limit = pathOr(20, ['query', 'limit'], req)
+  const offset = pipe(pathOr('0', ['query', 'offset']), Number, multiply(limit))(req)
+  const operationId = pathOr(null, ['query', 'operationId'], req)
+
+  const plate = pathOr(null, ['query', 'plate'], req)
+  const status =  pathOr([], ['query', 'status'], req)
+  const services =  pathOr([], ['query', 'services'], req)
+  const priorities =  pathOr([], ['query', 'priorities'], req)
+  const dates =  pathOr([], ['query', 'dates'], req)
+
+  const where = buildQuery({ plate, status, services, priorities, dates, operationId })
 
   try {
-    const response = await domainMaintenanceOrder.getAll({ ...req.query, companyId })
-
-    res.json(response)
+    const count = await MaintenanceOrderModel.count({ where })
+    const rows = await MaintenanceOrderModel.findAll({
+      where,
+      include: [
+        CompanyModel,
+        { model: MaintenanceOrderEventModel, limit: 1, where: { status: 'check-in' }},
+        { model: MaintenanceOrderDriverModel, include: [DriverModel], limit: 1 }
+      ],        
+      order: [
+        ['maintenanceDate', 'DESC'],
+      ],
+      offset,
+      limit
+    })
+    
+    res.json({ rows, count })
   } catch (error) {
     res.status(400).json({ error })
   }
 }
+
 
 const createEventToMaintenanceOrder =  async (req, res, next) => {
   const maintenanceOrderId = pathOr(null, ['params', 'id'], req)
@@ -332,73 +382,7 @@ const getByPlate = async (req, res, next) => {
   }
 }
 
-const getAllCompanyId = async (req, res, next) => {
-  const limit = pipe(pathOr('20', ['query', 'limit']), Number)(req)
-  const offset = pipe(pathOr('0', ['query', 'offset']), Number)(req)
-  const companyId = pathOr(null, ['query', 'companyId'], req)
-  const plate = pathOr(null, ['query', 'plate'], req)
-  const status =  pathOr([], ['query', 'status'], req)
-  const services =  pathOr([], ['query', 'services'], req)
-  const priorities =  pathOr([], ['query', 'priorities'], req)
-  const dates =  pathOr([], ['query', 'dates'], req)
 
-  const where = buildQuery({ plate, status, services, priorities, dates, companyId })
-
-  try {
-    const count = await MaintenanceOrderModel.count({ where })
-    const rows = await MaintenanceOrderModel.findAll({
-      where,
-      include: [
-        CompanyModel,
-        MaintenanceOrderEventModel,
-        { model: MaintenanceOrderDriverModel, include: [DriverModel] }
-      ],  
-      order: [
-        ['maintenanceDate', 'DESC'],
-      ],
-      offset: (offset * limit), 
-      limit
-    })
-    res.json({ rows, count })
-  } catch (error) {
-    res.status(400).json({ error })
-  }
-}
-
-const getAllOperationId = async (req, res, next) => {
-  const limit = pathOr(20, ['query', 'limit'], req)
-  const offset = pipe(pathOr('0', ['query', 'offset']), Number, multiply(limit))(req)
-  const operationId = pathOr(null, ['query', 'operationId'], req)
-
-  const plate = pathOr(null, ['query', 'plate'], req)
-  const status =  pathOr([], ['query', 'status'], req)
-  const services =  pathOr([], ['query', 'services'], req)
-  const priorities =  pathOr([], ['query', 'priorities'], req)
-  const dates =  pathOr([], ['query', 'dates'], req)
-
-  const where = buildQuery({ plate, status, services, priorities, dates, operationId })
-
-  try {
-    const count = await MaintenanceOrderModel.count({ where })
-    const rows = await MaintenanceOrderModel.findAll({
-      where,
-      include: [
-        CompanyModel,
-        { model: MaintenanceOrderEventModel, limit: 1, where: { status: 'check-in' }},
-        { model: MaintenanceOrderDriverModel, include: [DriverModel], limit: 1 }
-      ],        
-      order: [
-        ['maintenanceDate', 'DESC'],
-      ],
-      offset,
-      limit
-    })
-    
-    res.json({ rows, count })
-  } catch (error) {
-    res.status(400).json({ error })
-  }
-}
 
 const associateDriver = async (req, res, next) => {
   const driverId = pathOr(null, ['body', 'driverId'], req)
@@ -548,6 +532,9 @@ module.exports = {
   getAll,
   getById,
   update,
+  getAllCompanyId,
+  
+  getAllOperationId,
   
   createEventToMaintenanceOrder,
   getByIdMobile,
@@ -555,8 +542,7 @@ module.exports = {
   getSummaryOrderByCompany,
   getSummaryOrderByOperation,
   getByPlate,
-  getAllCompanyId,
-  getAllOperationId,
+  
   associateDriver,
   updateAssociateDriver,
   updateCancel,
