@@ -1,17 +1,24 @@
 const Sequelize = require('sequelize')
 const { pathOr } = require('ramda')
 
-const database = require('../../database')
-const domainCompany = require('../../src/Domains/Company');
+const database = require('../../../database')
+const domainCompany = require('../../Domains/Company')
 
 const MaintenanceOrderModel = database.model('maintenanceOrder')
 
 const getAll = async (req, res, next) => {
-  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
+  const companyGroupId = pathOr(
+    null,
+    ['decoded', 'user', 'companyGroupId'],
+    req
+  )
 
   try {
-    const response = await domainCompany.getAll({ ...req.query, companyGroupId })
-    
+    const response = await domainCompany.getAll({
+      ...req.query,
+      companyGroupId
+    })
+
     res.json(response)
   } catch (error) {
     res.status(404).json(error)
@@ -19,9 +26,13 @@ const getAll = async (req, res, next) => {
 }
 
 const createCompany = async (req, res, next) => {
-  const companyGroupId = pathOr(null, ['decoded', 'user', 'companyGroupId'], req)
+  const companyGroupId = pathOr(
+    null,
+    ['decoded', 'user', 'companyGroupId'],
+    req
+  )
   const transaction = await database.transaction()
-  
+
   try {
     const response = await domainCompany.create(
       { ...req.body, companyGroupId },
@@ -50,8 +61,10 @@ const update = async (req, res, next) => {
   const transaction = await database.transaction()
 
   try {
-    const response = await domainCompany.update(req.params.id, req.body, { transaction })
-  
+    const response = await domainCompany.update(req.params.id, req.body, {
+      transaction
+    })
+
     await transaction.commit()
     res.json(response)
   } catch (error) {
@@ -64,15 +77,13 @@ const getSummaryOrders = async (req, res, next) => {
   const companyId = pathOr(null, ['params', 'id'], req)
 
   try {
-    const response = await MaintenanceOrderModel.findAll({ 
+    const response = await MaintenanceOrderModel.findAll({
       where: { companyId },
       attributes: [
         'status',
         [Sequelize.fn('COUNT', Sequelize.col('status')), 'count']
       ],
-      group: [
-        'status'
-      ],
+      group: ['status']
     })
     res.json(response)
   } catch (error) {

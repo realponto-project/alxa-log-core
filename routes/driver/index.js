@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { driverController, driverIncidentController } = require('../../controllers')
+const { driverController, driverIncidentController } = require('../../src/controllers')
 
 router.post('/drivers', driverController.create)
 router.get('/drivers', driverController.getAll)

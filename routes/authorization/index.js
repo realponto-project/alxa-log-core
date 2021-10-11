@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { authorizationController  } = require('../../controllers')
+const { authorizationController  } = require('../../src/controllers')
 
 router.post('/authorizations', authorizationController.create)
 router.put('/authorizations/:id', authorizationController.update)

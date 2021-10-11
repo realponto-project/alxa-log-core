@@ -19,8 +19,8 @@ const company = {
 
 const user = {
   id: '30731a37-7607-46c0-aa55-c5c86f06b2c7',
-  name: 'Alexandre Santos',
-  document: '43947321821',
+  name: 'Test user',
+  document: '54245147075',
   password: '$2b$10$O01Ck29IqEj5SmkntghqBOuFPtViMcds/k.FoRpkpcicR7T7Pg5T6',
   userType: 'colaborator',
   activated: true,

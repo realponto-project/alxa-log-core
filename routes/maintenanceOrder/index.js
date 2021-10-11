@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { maintenanceOrderController } = require('../../controllers')
+const { maintenanceOrderController } = require('../../src/controllers')
 
 router.post('/maintenance-orders', maintenanceOrderController.create)
 router.get('/maintenance-orders-company', maintenanceOrderController.getAllCompanyId)
