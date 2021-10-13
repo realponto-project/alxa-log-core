@@ -13,11 +13,10 @@ const CompanyModel = database.model('company')
 const DriverModel = database.model('driver')
 const OperationModel = database.model('operation')
 const VehicleModel = database.model('vehicle')
-const UserModel = database.model('user')
 const AuthorizationModel = database.model('authorization')
 
 const { Op } = Sequelize
-const { or, iLike, eq, and, gte, lte } = Op
+const { or, iLike, eq, gte, lte } = Op
 
 const statusQuantityAllow = {
   cancel: 1,

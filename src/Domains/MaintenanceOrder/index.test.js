@@ -8,13 +8,11 @@ const globalMock = require('../../utils/Mocks/global')
 const { omit } = require('ramda')
 
 describe('domain maintenance order', () => {
-  let companyFactory = null
   let userFactory = null
   let operationFactory = null
   let driverFactory = null
 
   beforeAll(async () => {
-    companyFactory = await factory.create('company')
     userFactory = await factory.create('user')
     operationFactory = await factory.create('operation')
     driverFactory = await factory.create('driver')
