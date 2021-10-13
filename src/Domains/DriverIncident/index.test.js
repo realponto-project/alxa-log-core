@@ -74,25 +74,6 @@ describe('domain driver incident', () => {
         expect(formatterDbValues(row)).toStrictEqual(
           expect.objectContaining({
             id: expect.toBeUUID()
-            // name: expect.any(String),
-            // createdAt: expect.toBeDate(),
-            // updatedAt: expect.toBeDate(),
-            // userId: expect.toBeUUID(),
-            // company: expect.objectContaining({
-            //   id: expect.toBeUUID(),
-            //   name: expect.any(String),
-            //   document: expect.stringMatching(/\d/g),
-            //   type: expect.stringMatching(/filial|matriz/),
-            //   zipcode: expect.stringMatching(/\d/g),
-            //   street: expect.any(String),
-            //   streetNumber: expect.any(String),
-            //   neighborhood: expect.any(String),
-            //   city: expect.any(String),
-            //   state: expect.any(String),
-            //   createdAt: expect.toBeDate(),
-            //   updatedAt: expect.toBeDate(),
-            //   companyGroupId: globalMock.company.companyGroupId
-            // })
           })
         )
       })
