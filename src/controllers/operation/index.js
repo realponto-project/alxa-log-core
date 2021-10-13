@@ -3,20 +3,21 @@ const { pathOr } = require('ramda')
 const database = require('../../../database')
 const domainOperation = require('../../Domains/Operation')
 
-const OperationModel = database.model('operation')
-const CompanyModel = database.model('company')
 const MaintenanceOrderModel = database.model('maintenanceOrder')
 
 const Sequelize = require('sequelize')
-const { Op } = Sequelize
-const { iLike } = Op
 
 const create = async (req, res, next) => {
   const userId = pathOr(null, ['decoded', 'user', 'id'], req)
+  const companyId = pathOr(null, ['decoded', 'user', 'companyId'], req)
   const transaction = await database.transaction()
 
   try {
-    const response = await domainOperation.create({ ...req.body, userId })
+    const response = await domainOperation.create({
+      ...req.body,
+      userId,
+      companyId
+    })
 
     res.json(response)
     await transaction.commit()
