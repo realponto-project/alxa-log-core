@@ -6,7 +6,7 @@ const factory = require('../../utils/Mocks/factories')
 const globalMock = require('../../utils/Mocks/global')
 const formatterDbValues = require('../../utils/formatterDbValues')
 
-describe('controller user', () => {
+describe('controller vehicle type', () => {
   let token = null
 
   beforeAll(async () => {
@@ -19,73 +19,61 @@ describe('controller user', () => {
   })
 
   describe('post', () => {
-    it('should ba able create a new user', async () => {
+    it('should ba able create a new vehicle type', async () => {
       expect.assertions(2)
 
-      const payload = faker.userFaker()
+      const payload = faker.vehicleTypeFaker()
 
       const response = await request(app)
-        .post('/api/users')
+        .post('/api/vehicle-types')
         .set('Authorization', `Bearer ${token}`)
         .set('Accept', 'application/json')
         .send(payload)
 
       expect(response).toHaveProperty('status', 200)
-      expect(response).toHaveProperty(
-        'body',
-        expect.objectContaining({
-          document: payload.document,
-          name: payload.name
-        })
-      )
+      expect(response).toHaveProperty('body', expect.objectContaining(payload))
     })
   })
 
   describe('put', () => {
-    let userFactory = null
+    let vehicleTypeFactory = null
 
     beforeAll(async () => {
-      userFactory = await factory.create('user', {
+      vehicleTypeFactory = await factory.create('vehicleType', {
         companyId: globalMock.company.id
       })
     })
 
-    it('should be able update a user', async () => {
+    it('should be able update a vehicle type', async () => {
       expect.assertions(2)
 
-      const payload = faker.userFaker()
+      const payload = faker.vehicleTypeFaker()
 
       const response = await request(app)
-        .put(`/api/users/${userFactory.id}`)
+        .put(`/api/vehicle-types/${vehicleTypeFactory.id}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Accept', 'application/json')
         .send(payload)
 
       expect(response).toHaveProperty('status', 200)
-      expect(response).toHaveProperty(
-        'body',
-        expect.objectContaining({
-          document: payload.document,
-          name: payload.name
-        })
-      )
+      expect(response).toHaveProperty('body', expect.objectContaining(payload))
     })
   })
 
   describe('get', () => {
-    let usersFactory = null
+    let vehicleTypesFactory = null
 
     beforeAll(async () => {
-      usersFactory = await factory.createMany('user', 2, {
+      vehicleTypesFactory = await factory.createMany('vehicleType', 2, {
         companyId: globalMock.company.id
       })
     })
 
-    it('should be able get users', async () => {
+    it('should be able get vehicle types', async () => {
       expect.assertions(2)
 
       const response = await request(app)
-        .get(`/api/users`)
+        .get(`/api/vehicle-types`)
         .set('Authorization', `Bearer ${token}`)
         .set('Accept', 'application/json')
 
@@ -99,13 +87,13 @@ describe('controller user', () => {
       )
     })
 
-    it('should be able get a user by id', async () => {
+    it('should be able get a vehicle type by id', async () => {
       expect.assertions(2)
 
-      const payload = usersFactory[0]
+      const payload = vehicleTypesFactory[0]
 
       const response = await request(app)
-        .get(`/api/users/${payload.id}`)
+        .get(`/api/vehicle-types/${payload.id}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Accept', 'application/json')
 
