@@ -6,6 +6,10 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 
+const { logErrorMiddleware, returnError } = require('./src/utils/Errors/errorHandler')
+const rollbar = require('./src/utils/Errors/rollbar');
+const env = process.env.NODE_EN || 'development'
+
 const app = Express()
 
 const AuthenticationRoutes = require('./routes/authentication')
@@ -48,5 +52,10 @@ app.use(baseUrl, vehicleRoutes)
 app.use(baseUrl, driverRoutes)
 app.use(baseUrl, maintenanceOrderRoutes)
 app.use(baseUrl, maintenanceOrderEventRoutes)
+
+if(env === 'production') app.use(rollbar.errorHandler());
+
+app.use(logErrorMiddleware)
+app.use(returnError)
 
 module.exports = app
