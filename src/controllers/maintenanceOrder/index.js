@@ -343,7 +343,7 @@ const buildQuerySummary = ({ dates, companyId }) => {
   if (companyId) where.companyId = companyId
 
   if (dates) {
-    where.createdAt = {
+    where.maintenanceDate = {
       [gte]: moment(dates.start).startOf('day').toISOString(),
       [lte]: moment(dates.end).endOf('day').toISOString()
     }
