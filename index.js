@@ -1,10 +1,11 @@
 // require('dotenv').config({  })
 require('dotenv').config({ path: '.env.test' })
 
+// const bodyParser = require('body-parser')
 const Express = require('express')
-const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
+const helmet = require('helmet');
 
 const { logErrorMiddleware, returnError } = require('./src/utils/Errors/errorHandler')
 const rollbar = require('./src/utils/Errors/rollbar');
@@ -31,12 +32,16 @@ const trackRoutes = require('./routes/track')
 const baseUrl = '/api'
 
 app.use(cors())
-
+app.use(helmet());
 app.use(morgan('dev'))
-app.use(bodyParser.text())
-app.use(bodyParser.json())
-app.use(bodyParser.json({ type: 'application/json' }))
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(Express.json({ type: 'application/json' }))
+app.use(Express.urlencoded({ extended: true }))
+
+// bodyParser is deprecated
+// app.use(bodyParser.text())
+// app.use(bodyParser.json())
+// app.use(bodyParser.json({ type: 'application/json' }))
+// app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use('/qrcode-detail/:id', getByIdMobile)
 app.use(trackRoutes)
