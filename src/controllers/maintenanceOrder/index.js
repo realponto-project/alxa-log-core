@@ -252,7 +252,7 @@ const createEventToMaintenanceOrder = async (req, res, next) => {
       where: { status, maintenanceOrderId }
     })
 
-    if (response.status === 'check-out') {
+    if (response.status === 'check-out' || response.status === 'cancel') {
       throw new Error('Order finished, you cant set other state!')
     }
 

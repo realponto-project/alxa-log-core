@@ -2,6 +2,7 @@ const { propOr, applySpec, always } = require('ramda')
 
 const database = require('../../../database')
 const { buildQueryPagnation, buildWhere } = require('../../utils')
+const { Api404Error } = require('../../utils/Errors')
 
 const CompanyModel = database.model('company')
 const VehicleTypeModel = database.model('vehicleType')
@@ -20,7 +21,7 @@ class DomainVehicleType {
 
     const vehicleType = await VehicleTypeModel.findByPk(id)
 
-    if (!vehicleType) throw new Error('Vehicle type not found')
+    if (!vehicleType) throw new Api404Error('Vehicle type not found')
 
     const response = await vehicleType.update(values, { transaction })
 

@@ -99,7 +99,7 @@ class DomainMaintenanceOrder {
       ]),
       include: always([
         CompanyModel,
-        MaintenanceOrderEventModel,
+        { model: MaintenanceOrderEventModel, required: true },
         {
           model: MaintenanceOrderDriverModel,
           include: [DriverModel]
