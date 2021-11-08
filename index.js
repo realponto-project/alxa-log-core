@@ -1,4 +1,6 @@
-require('dotenv').config({})
+// require('dotenv').config({  })
+require('dotenv').config({ path: '.env.test' })
+
 const Express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -7,8 +9,8 @@ const morgan = require('morgan')
 const app = Express()
 
 const AuthenticationRoutes = require('./routes/authentication')
-const { AuthenticationController } = require('./controllers')
-const { getByIdMobile } = require('./controllers/maintenanceOrder')
+const { AuthenticationController } = require('./src/controllers')
+const { getByIdMobile } = require('./src/controllers/maintenanceOrder')
 
 const authorizationRoutes = require('./routes/authorization')
 const companyRoutes = require('./routes/company')

@@ -56,13 +56,16 @@ module.exports = {
     return queryInterface.sequelize.transaction(t => {
       return Promise.all([
         queryInterface.removeColumn('drivers', 'expireDriverLicense', { transaction: t }),
-        queryInterface.removeColumn('drivers', 'Rg', { transaction: t }),
-        queryInterface.removeColumn('drivers', 'Cpf', { transaction: t }),
+        queryInterface.removeColumn('drivers', 'rg', { transaction: t }),
+        queryInterface.removeColumn('drivers', 'cpf', { transaction: t }),
         queryInterface.removeColumn('drivers', 'expireASO', { transaction: t }),
         queryInterface.removeColumn('drivers', 'protocolInsuranceCompany', { transaction: t }),
         queryInterface.removeColumn('drivers', 'expireProtocolInsuranceCompany', { transaction: t }),
-        queryInterface.removeColumn('drivers', 'MOP', { transaction: t }),
+        queryInterface.removeColumn('drivers', 'mop', { transaction: t }),
         queryInterface.removeColumn('drivers', 'bond', { transaction: t }),
+        queryInterface.dropEnum("enum_drivers_bond", {
+          transaction: t,
+        }),
       ]);
     });
   }

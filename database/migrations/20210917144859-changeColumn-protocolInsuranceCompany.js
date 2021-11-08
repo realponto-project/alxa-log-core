@@ -10,9 +10,9 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.changeColumn('drivers', 'protocolInsuranceCompany',{
-      type: Sequelize.INTEGER,
-      allowNull: false,
-      defaultValue: 3333
+      type: Sequelize.STRING,
+      // allowNull: false,
+      defaultValue: '3333'
     })
   }
 }

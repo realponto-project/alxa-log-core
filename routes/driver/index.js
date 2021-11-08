@@ -1,17 +1,17 @@
 const router = require('express').Router()
-const { driverController } = require('../../controllers')
+const { driverController, driverIncidentController } = require('../../src/controllers')
 
 router.post('/drivers', driverController.create)
-router.post('/drivers-incidents', driverController.createIncident)
-router.put('/drivers-incidents/:id', driverController.updateIncident)
+router.get('/drivers', driverController.getAll)
+router.get('/drivers/:id', driverController.getById)
+router.put('/drivers/:id', driverController.update)
+
+router.post('/drivers-incidents', driverIncidentController.create)
+router.put('/drivers-incidents/:id', driverIncidentController.update)
+router.get('/drivers-incidents/:id', driverIncidentController.getAll)
 
 router.get('/drivers-summary-expire', driverController.getSummaryExpire)
-
 router.get('/drivers-incidents-summary/:id', driverController.getIncidentsSummary)
-router.get('/drivers-incidents/:id', driverController.getAllIncidentByDriverId)
 
-router.get('/drivers', driverController.getAll)
-router.put('/drivers/:id', driverController.update)
-router.get('/drivers/:id', driverController.getById)
 
 module.exports = router

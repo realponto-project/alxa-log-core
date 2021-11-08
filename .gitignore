@@ -3,3 +3,4 @@ db.env.json
 /ignore
 .env
 .env.**
+/coverage
