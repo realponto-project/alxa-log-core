@@ -36,7 +36,7 @@ jobs:
       - name: Install modules
         run: npm ci
       - name: Run tests
-        run: npm run test src/controllers/authentication
+        run: npm run test
         env:
           DB_USERNAME: postgres
           DB_HOST: postgres
