@@ -1,7 +1,7 @@
 const paths = {
   development: '.env',
   test: '.env.test',
-  prod: './.env.prod'
+  prod: '.env.prod'
 }
 const env = process.env.NODE_ENV || 'development'
 
