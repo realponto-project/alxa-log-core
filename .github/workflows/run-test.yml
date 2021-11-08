@@ -9,7 +9,7 @@ on:
 
 jobs:
   # Label of the container job
-  container-db: 
+  tests: 
     # Containers must run in Linux based operating systems
     runs-on: ubuntu-latest
     # Docker Hub image that `container-job` executes in
