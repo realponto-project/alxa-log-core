@@ -61,7 +61,8 @@ class DomainVehicle {
 
     const vehicles = await VehicleModel.findAndCountAll({
       ...buildQueryPagnation(query),
-      ...buildQuery(query)
+      ...buildQuery(query),
+      order: [["plate", "ASC"]],
     })
 
     return vehicles
