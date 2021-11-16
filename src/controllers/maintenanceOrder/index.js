@@ -337,10 +337,21 @@ const getByIdMobile = async (req, res, next) => {
   }
 }
 
-const buildQuerySummary = ({ dates, companyId }) => {
+const buildQuerySummary = ({ dates, status, companyId }) => {
   const where = {}
 
   if (companyId) where.companyId = companyId
+
+  if (status) {
+    where.status =
+      status === 'empty'
+        ? {
+            [eq]: null
+          }
+        : {
+            [or]: status
+          }
+  }
 
   if (dates) {
     where.maintenanceDate = {
