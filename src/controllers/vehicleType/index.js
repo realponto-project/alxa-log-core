@@ -1,12 +1,7 @@
 const { pathOr } = require('ramda')
-const Sequelize = require('sequelize')
 
 const database = require('../../../database')
 const domainVehicleType = require('../../Domains/VehicleType')
-
-const {
-  Op: { iLike }
-} = Sequelize
 
 const create = async (req, res, next) => {
   const userId = pathOr(null, ['decoded', 'user', 'id'], req)
@@ -23,7 +18,7 @@ const create = async (req, res, next) => {
     res.json(response)
   } catch (error) {
     await transaction.rollback()
-    res.status(400).json({ error: error.message })
+    next(error)
   }
 }
 
@@ -37,7 +32,7 @@ const update = async (req, res, next) => {
     res.json(response)
   } catch (error) {
     await transaction.rollback()
-    res.status(400).json({ error })
+    next(error)
   }
 }
 
@@ -46,7 +41,7 @@ const getById = async (req, res, next) => {
     const response = await domainVehicleType.getById(req.params.id)
     res.json(response)
   } catch (error) {
-    res.status(400).json({ error })
+    next(error)
   }
 }
 
@@ -65,7 +60,7 @@ const getAll = async (req, res, next) => {
 
     res.json(response)
   } catch (error) {
-    res.status(400).json({ error })
+    next(error)
   }
 }
 

@@ -1,9 +1,9 @@
 const { compare } = require('bcrypt')
 const jwt = require('jsonwebtoken')
-
 const { applySpec, path } = require('ramda')
 
 const database = require('../../../database')
+const { Api404Error, Api401Error } = require('../../utils/Errors')
 
 const UserModel = database.model('user')
 const CompanyModel = database.model('company')
@@ -30,20 +30,18 @@ const authentication = async (req, res, next) => {
       include: CompanyModel
     })
 
+    if (!user) throw new Api404Error('User not found')
+
     const payloadToken = buildPayloadToken(user)
 
     const checkedPassword = await compare(req.body.password, user.password)
 
-    if (!checkedPassword) {
-      throw new Error('Username or password do not match')
-    }
+    if (!checkedPassword) throw new Api401Error('Invalid password')
 
     const token = jwt.sign({ user: payloadToken }, secret, { expiresIn: '96h' })
     res.json({ user, token })
   } catch (error) {
-    res
-      .status(400)
-      .json({ errors: [{ error: error.name, message: error.message }] })
+    next(error)
   }
 }
 

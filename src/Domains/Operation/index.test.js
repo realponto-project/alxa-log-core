@@ -7,12 +7,10 @@ const factory = require('../../utils/Mocks/factories')
 const globalMock = require('../../utils/Mocks/global')
 const formatterDbValues = require('../../utils/formatterDbValues')
 
-describe('domaon operation', () => {
-  let companyFactory = null
+describe('domain operation', () => {
   let userFactory = null
 
   beforeAll(async () => {
-    companyFactory = await factory.create('company')
     userFactory = await factory.create('user')
   })
 
@@ -21,7 +19,7 @@ describe('domaon operation', () => {
       expect.assertions(1)
 
       const operationMock = faker.operationFaker({
-        companyId: companyFactory.id,
+        companyId: userFactory.companyId,
         userId: userFactory.id
       })
 

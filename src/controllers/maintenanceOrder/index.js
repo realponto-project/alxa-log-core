@@ -252,7 +252,7 @@ const createEventToMaintenanceOrder = async (req, res, next) => {
       where: { status, maintenanceOrderId }
     })
 
-    if (response.status === 'check-out') {
+    if (response.status === 'check-out' || response.status === 'cancel') {
       throw new Error('Order finished, you cant set other state!')
     }
 
@@ -337,13 +337,24 @@ const getByIdMobile = async (req, res, next) => {
   }
 }
 
-const buildQuerySummary = ({ dates, companyId }) => {
+const buildQuerySummary = ({ dates, status, companyId }) => {
   const where = {}
 
   if (companyId) where.companyId = companyId
 
+  if (status) {
+    where.status =
+      status === 'empty'
+        ? {
+            [eq]: null
+          }
+        : {
+            [or]: status
+          }
+  }
+
   if (dates) {
-    where.createdAt = {
+    where.maintenanceDate = {
       [gte]: moment(dates.start).startOf('day').toISOString(),
       [lte]: moment(dates.end).endOf('day').toISOString()
     }

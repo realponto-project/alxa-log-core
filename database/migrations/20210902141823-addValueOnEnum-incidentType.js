@@ -54,19 +54,19 @@ module.exports = {
         queryInterface.dropEnum("enum_driverIncidents_incidentType", {
           transaction: t,
         }),
-        queryInterface.changeColumn(
-          "driverIncidents",
-          "incidentType",
-          {
-            type: Sequelize.ENUM([
-              "accident",
-              "collision",
-              "vehicle_break_down",
-            ]),
-            allowNull: false,
-          },
-          { transaction: t }
-        ),
+        // queryInterface.changeColumn(
+        //   "driverIncidents",
+        //   "incidentType",
+        //   {
+        //     type: Sequelize.ENUM([
+        //       "accident",
+        //       "collision",
+        //       "vehicle_break_down",
+        //     ]),
+        //     allowNull: false,
+        //   },
+        //   { transaction: t }
+        // ),
       ]);
     });
   },
