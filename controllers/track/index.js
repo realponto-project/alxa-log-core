@@ -33,9 +33,10 @@ const configStgDb = {
 const saveTrackStg = process.env.SAVE_TRACK_STG
 
 const createTrack = async (req, res, next) => {
+  console.log("req: ", req);
   const serialNumber = pathOr(null, ['body', 'serialNumber'], req)
   const payload = pathOr({}, ['body'], req)
-  
+
   if(saveTrackStg){
     const dbStg = new Sequelize(
       `${process.env[configStgDb.use_env_variable]}?sslmode=require`,
