@@ -35,6 +35,8 @@ const createTrack = async (req, res, next) => {
   const serialNumber = pathOr(null, ['body', 'serialNumber'], req)
   const payload = pathOr({}, ['body'], req)
 
+  console.log("req: ", req);
+
   if (saveTrackStg) {
     const dbStg = new Sequelize(
       `${process.env[configStgDb.use_env_variable]}?sslmode=require`,
