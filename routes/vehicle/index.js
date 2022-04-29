@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { vehicleController } = require('../../controllers')
+const { vehicleController } = require('../../src/controllers')
 
 router.post('/vehicles', vehicleController.create)
 router.get('/vehicles', vehicleController.getAll)

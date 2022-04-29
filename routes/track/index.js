@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { trackController } = require('../../controllers')
+const { trackController } = require('../../src/controllers')
 
 router.post('/tracks', trackController.createTrack)
 

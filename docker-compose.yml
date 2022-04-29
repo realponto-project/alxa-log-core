@@ -8,3 +8,10 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=jsl-postgres
+  
+  test-database:
+    image: postgres:9.6.5-alpine
+    ports:
+    - 5430:5432
+    environment:
+      - POSTGRES_PASSWORD=postgres

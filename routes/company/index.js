@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { companyController } = require('../../controllers')
+const { companyController } = require('../../src/controllers')
 
 router.get('/companies', companyController.getAll)
 router.get('/companies/:id', companyController.getById)
